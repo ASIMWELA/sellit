@@ -1,0 +1,33 @@
+app:
+  jwt:
+    secrete: "${env.JWT_SECRETE}"
+    expiration: "${env.JWT_EXPIRATION_M_SECONDS}"
+
+spring:
+  datasource:
+    url: "${env.DATABASE_URL}"
+    username: "${env.DB_USER_NAME}"
+    password: "${env.DB_PASSWORD}"
+    initialization-mode: always
+  main:
+    banner-mode: off
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: create
+    open-in-view: false
+
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_trace_param
+    include-exception: false
