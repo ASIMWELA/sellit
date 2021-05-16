@@ -26,7 +26,6 @@ public class ProviderController {
     public ResponseEntity<ApiResponse> signupProvider(@RequestBody @Valid ProviderSignupRequest providerSignupRequest){
         return providerService.signupProvider(providerSignupRequest);
     }
-
     @PostMapping("/{serviceUuid}/{providerUuid}")
     @Transactional
     public ResponseEntity<ApiResponse> mapServiceToProvider(@PathVariable String serviceUuid, @PathVariable String providerUuid, @RequestBody @Valid ServiceProvider serviceProvider){

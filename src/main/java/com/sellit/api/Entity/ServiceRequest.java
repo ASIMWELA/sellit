@@ -19,15 +19,16 @@ import java.util.Objects;
 @Entity
 @Table(name = "service_requests")
 public class ServiceRequest extends BaseEntity {
-
-    @Lob
-    @Column(name="requirement_description")
+    @Column(name="requirement_description", length = 2500, nullable = false)
+    @NonNull
     String requirementDescription;
-    @Column(name="required_on")
+    @Column(name="required_on", nullable = false)
+    @NonNull
     Date requiredOn;
-    @Column(name="expected_start_time")
+    @Column(name="expected_start_time", nullable = false)
+    @NonNull
     Date expectedStartTime;
-    @Column(name="expected_tentative_effort_required_in_hours", length = 100)
+    @Column(name="expected_tentative_effort_required_in_hours", length = 100, nullable = false)
     Long expectedTentativeEffortRequiredInHours;
     @ManyToOne
     @JoinColumn(name = "user_id")

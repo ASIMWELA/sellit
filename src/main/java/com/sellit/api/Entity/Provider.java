@@ -30,13 +30,12 @@ public class Provider extends BaseEntity{
     String providerDescription;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="user_id", referencedColumnName = "id", unique = true)
-    @JsonIgnore
     User user;
     @OneToOne(mappedBy = "provider")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     ProviderRating providerRating;
-    @OneToMany(mappedBy = "provider")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+    @LazyCollection(LazyCollectionOption.TRUE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<ServiceProvider> services;
 }

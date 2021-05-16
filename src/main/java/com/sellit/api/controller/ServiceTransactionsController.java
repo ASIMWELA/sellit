@@ -3,14 +3,18 @@ package com.sellit.api.controller;
 
 import com.sellit.api.Entity.Service;
 import com.sellit.api.Entity.ServiceCategory;
+import com.sellit.api.Entity.ServiceRequest;
 import com.sellit.api.payload.ApiResponse;
+import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.service.ServiceTransactions;
+import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -29,6 +33,15 @@ public class ServiceTransactionsController {
     @Transactional
     public ResponseEntity<ApiResponse> saveService(@RequestBody @Valid Service service, @PathVariable("categoryUuid") String categoryUuid){
         return serviceTransactions.saveService(service, categoryUuid);
+    }
+    @GetMapping
+    public ResponseEntity<PagedResponse> getServices(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
+        return serviceTransactions.getServices(pageNo, pageSize);
+    }
+    @PostMapping("/{customerUuid}/{serviceUuid}")
+    @Transactional
+    public ResponseEntity<ApiResponse> requestService(@PathVariable @NonNull String customerUuid, @PathVariable @NonNull String serviceUuid, @RequestBody @Valid ServiceRequest serviceRequest){
+        return serviceTransactions.requestService(customerUuid, serviceUuid, serviceRequest);
     }
 
 }
