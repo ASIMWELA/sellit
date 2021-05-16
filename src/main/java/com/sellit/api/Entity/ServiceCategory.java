@@ -1,14 +1,13 @@
 package com.sellit.api.Entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.sellit.api.Enum.EServiceCategory;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,12 +18,12 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "service_categories")
+@Builder
 public class ServiceCategory extends BaseEntity {
-    @Column(name="service_category_name", unique = true, length = 50)
-    @Enumerated(EnumType.STRING)
-    @NaturalId
-    EServiceCategory serviceCategoryName;
-    @OneToMany(mappedBy = "serviceCategory")
+    @Column(name="service_category_name", unique = true, length = 50, nullable = false)
+    @NonNull
+    String serviceCategoryName;
+    @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.ALL)
     @LazyCollection(LazyCollectionOption.FALSE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<Service> services = new ArrayList<>();

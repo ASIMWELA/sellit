@@ -2,14 +2,15 @@ package com.sellit.api.service;
 
 import com.sellit.api.Entity.Provider;
 import com.sellit.api.Entity.Role;
+import com.sellit.api.Entity.ServiceProvider;
 import com.sellit.api.Entity.User;
 import com.sellit.api.Enum.ERole;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
+import com.sellit.api.exception.OperationNotAllowedException;
 import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
-import com.sellit.api.repository.RoleRepository;
-import com.sellit.api.repository.UserRepository;
+import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,16 +21,20 @@ import java.util.Collections;
 
 @Service
 public class ProviderService {
-    final UserRepository userRepository;
-    final PasswordEncoder passwordEncoder;
-    final RoleRepository roleRepository;
+    final private UserRepository userRepository;
+    final private PasswordEncoder passwordEncoder;
+    final private RoleRepository roleRepository;
+    final private ProviderRepository providerRepository;
+    final private ServiceProviderRepository serviceProviderRepository;
+    final private ServiceRepository serviceRepository;
 
-    public ProviderService(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder,
-                           RoleRepository roleRepository) {
+    public ProviderService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, ProviderRepository providerRepository, ServiceProviderRepository serviceProviderRepository, ServiceRepository serviceRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
+        this.providerRepository = providerRepository;
+        this.serviceProviderRepository = serviceProviderRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     public ResponseEntity<ApiResponse> signupProvider(ProviderSignupRequest providerSignupRequest){
@@ -76,4 +81,39 @@ public class ProviderService {
         userRepository.save(provider);
         return new ResponseEntity<>(new ApiResponse(true, "provider saved"), HttpStatus.CREATED);
     }
+
+    public ResponseEntity<ApiResponse> assignServiceToProvider(String serviceUuid, String providerUuid, ServiceProvider serviceProviderRequest){
+
+        Provider provider = providerRepository.findByUuid(providerUuid).orElseThrow(
+                ()-> new EntityNotFoundException("No provider with the identifier provided")
+        );
+
+
+        com.sellit.api.Entity.Service service = serviceRepository.findByUuid(serviceUuid).orElseThrow(
+                ()->new EntityNotFoundException("No service with the provided identifier")
+        );
+
+        if(!provider.getUser().isAProvider()){
+            throw new OperationNotAllowedException("You are not a provider");
+        }
+
+        provider.getServices().forEach(serv->{
+            if(serv.getService().getServiceName().equalsIgnoreCase(service.getServiceName())){
+                throw new EntityAlreadyExistException("Service already exist on your list");
+            }
+        });
+
+        ServiceProvider serviceProvider = ServiceProvider.builder()
+                .experienceInMonths(serviceProviderRequest.getExperienceInMonths())
+                .serviceOfferingDescription(serviceProviderRequest.getServiceOfferingDescription())
+                .billingRatePerHour(serviceProviderRequest.getBillingRatePerHour())
+                .provider(provider)
+                .service(service)
+                .build();
+        serviceProvider.setUuid(UuidGenerator.generateRandomString(12));
+        serviceProviderRepository.save(serviceProvider);
+
+        return new ResponseEntity<>(new ApiResponse(true, "service added to your list"), HttpStatus.OK);
+    }
+
 }

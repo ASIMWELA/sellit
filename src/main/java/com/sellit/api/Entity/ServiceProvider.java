@@ -7,6 +7,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,19 +18,22 @@ import java.util.Objects;
 @Setter
 @Entity
 @Table(name = "service_providers")
+@Builder
 public class ServiceProvider extends BaseEntity {
-    @Column(name="billing_rate_per_Hour", length = 100)
+    @Column(name="billing_rate_per_Hour", length = 20, nullable = false)
+    @NotBlank
     double billingRatePerHour;
-    @Column(name="experience_in_months")
+    @Column(name="experience_in_months", nullable = false)
+    @NotBlank
     int experienceInMonths;
-    @Lob
-    @Column(name="service_offering_description")
+    @Column(name="service_offering_description", length = 800)
+    @NotBlank
     String serviceOfferingDescription;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "service_id")
     @LazyCollection(LazyCollectionOption.FALSE)
     Service service;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "provider_id")
     @LazyCollection(LazyCollectionOption.FALSE)
     Provider provider;
