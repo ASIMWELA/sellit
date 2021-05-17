@@ -8,6 +8,8 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Date;
 import java.util.Objects;
 
@@ -21,8 +23,11 @@ import java.util.Objects;
 public class ServiceDeliveryOffer extends BaseEntity {
 
     @Column(name="discount_in_percent", length = 50)
+    @PositiveOrZero
     double discountInPercent;
     @Column(name="estimated_cost", length = 50)
+    @PositiveOrZero
+    @NotEmpty
     double estimatedCost;
     @Column(name="offer_submission_date")
     Date offerSubmissionDate;

@@ -81,6 +81,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
+                //TODO:reconfigure method security
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST,
                             "/api/v1/customers","/api/v1/login",
@@ -88,7 +89,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
                             )
                             .permitAll()
                     .antMatchers(HttpMethod.GET,
-                        "/api/comsoc/members/**"
+                        "/api/**"
                     )
                              .permitAll()
                 .antMatchers("/",

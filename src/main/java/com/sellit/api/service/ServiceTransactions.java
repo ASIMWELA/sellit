@@ -1,8 +1,6 @@
 package com.sellit.api.service;
 
-import com.sellit.api.Entity.ServiceCategory;
-import com.sellit.api.Entity.ServiceRequest;
-import com.sellit.api.Entity.User;
+import com.sellit.api.Entity.*;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.payload.ApiResponse;
@@ -17,7 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 
@@ -28,12 +26,21 @@ public class ServiceTransactions {
     final private ServiceRepository serviceRepository;
     final private UserRepository userRepository;
     final private ServiceRequestRepository serviceRequestRepository;
+    final private ServiceProviderRepository serviceProviderRepository;
+    final private ServiceDeliveryOfferRepository serviceDeliveryOfferRepository;
 
-    public ServiceTransactions(ServiceCategoryRepository serviceCategoryRepository, ServiceRepository serviceRepository, UserRepository userRepository, ServiceRequestRepository serviceRequestRepository) {
+    public ServiceTransactions(ServiceCategoryRepository serviceCategoryRepository,
+                               ServiceRepository serviceRepository,
+                               UserRepository userRepository,
+                               ServiceRequestRepository serviceRequestRepository,
+                               ServiceProviderRepository serviceProviderRepository,
+                               ServiceDeliveryOfferRepository serviceDeliveryOfferRepository) {
         this.serviceCategoryRepository = serviceCategoryRepository;
         this.serviceRepository = serviceRepository;
         this.userRepository = userRepository;
         this.serviceRequestRepository = serviceRequestRepository;
+        this.serviceProviderRepository = serviceProviderRepository;
+        this.serviceDeliveryOfferRepository = serviceDeliveryOfferRepository;
     }
 
     public ResponseEntity<ApiResponse> saveServiceCategory(ServiceCategory serviceCategoryRequest){
@@ -92,6 +99,36 @@ public class ServiceTransactions {
         serviceRequestRepository.save(serviceRequest);
 
         return new ResponseEntity<>(new ApiResponse(true, "service request placed"), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ApiResponse> serviceDeliveryOffer(String serviceRequestUuid, String serviceProviderUuid, ServiceDeliveryOffer serviceDeliveryOffer){
+       //TODO: test service delivery offer
+        ServiceRequest serviceRequest = serviceRequestRepository.findByUuid(serviceRequestUuid).orElseThrow(
+                ()->new EntityNotFoundException("No request was made for the identifier provided")
+        );
+
+        ServiceProvider serviceProvider = serviceProviderRepository.findByUuid(serviceProviderUuid).orElseThrow(
+                ()->new EntityNotFoundException("No service provider found with the given identifier")
+        );
+        serviceDeliveryOffer.setUuid(UuidGenerator.generateRandomString(12));
+        serviceDeliveryOffer.setServiceRequest(serviceRequest);
+        serviceDeliveryOffer.setServiceProvider(serviceProvider);
+        serviceDeliveryOffer.setOfferAccepted(false);
+        serviceDeliveryOffer.setOfferSubmissionDate(new Date());
+        serviceDeliveryOfferRepository.save(serviceDeliveryOffer);
+
+       return new ResponseEntity<>(new ApiResponse(true, "offer placed"),HttpStatus.OK);
+    }
+
+    public ResponseEntity<ApiResponse> completeServiceAppointment(String serviceDeliveryOfferUuid, ServiceAppointment serviceAppointment){
+       //TODO : create and test an end pont with this method (complete service appointment)
+        ServiceDeliveryOffer serviceDeliveryOffer = serviceDeliveryOfferRepository.findByUuid(serviceDeliveryOfferUuid).orElseThrow(
+                ()->new EntityNotFoundException("No service delivery offer with the given identifier"));
+
+        serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
+        serviceDeliveryOffer.setUuid(UuidGenerator.generateRandomString(12));
+
+        return new ResponseEntity<>(new ApiResponse(true, "Appointment booked"), HttpStatus.OK);
     }
 
 }

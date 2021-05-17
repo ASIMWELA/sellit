@@ -10,6 +10,7 @@ import com.sellit.api.service.ServiceTransactions;
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,6 +19,7 @@ import javax.validation.constraints.PositiveOrZero;
 
 @RestController
 @RequestMapping("/api/v1/services")
+@Validated
 public class ServiceTransactionsController {
 
     private final ServiceTransactions serviceTransactions;
@@ -41,7 +43,9 @@ public class ServiceTransactionsController {
     @PostMapping("/{customerUuid}/{serviceUuid}")
     @Transactional
     public ResponseEntity<ApiResponse> requestService(@PathVariable @NonNull String customerUuid, @PathVariable @NonNull String serviceUuid, @RequestBody @Valid ServiceRequest serviceRequest){
+       //TODO: test request service end point
         return serviceTransactions.requestService(customerUuid, serviceUuid, serviceRequest);
     }
+
 
 }
