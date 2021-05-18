@@ -19,11 +19,11 @@ import java.util.List;
 @Entity
 @Table(name = "service_appointments")
 public class ServiceAppointment extends BaseEntity{
-    @Column(name="service_delivered_on")
+    @Column(name="service_delivered_on", nullable = false)
     Date serviceDeliveredOn;
-    @Column(name="service_start_time")
+    @Column(name="service_start_time", nullable = false)
     Date serviceStartTime;
-    @Column(name="service_end_time")
+    @Column(name="service_end_time", nullable = false)
     Date serviceEndTime;
     @OneToOne
     @JsonInclude(JsonInclude.Include.NON_NULL)

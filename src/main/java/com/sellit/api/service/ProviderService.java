@@ -12,6 +12,7 @@ import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 @Service
+@Slf4j
 public class ProviderService {
     final private UserRepository userRepository;
     final private PasswordEncoder passwordEncoder;
@@ -49,6 +51,7 @@ public class ProviderService {
             throw new EntityAlreadyExistException("mobile number already taken");
         }
 
+        log.info("Customer signup request");
         User provider = User.builder()
                 .firstName(providerSignupRequest.getFirstName())
                 .email(providerSignupRequest.getEmail().toLowerCase())
@@ -65,7 +68,7 @@ public class ProviderService {
                 ()->new EntityNotFoundException("Role not set")
         );
         provider.setRoles(Collections.singletonList(roleCustomer));
-
+        log.info("Building provider details");
         Provider providerDetails = Provider.builder()
                 .providerDescription(providerSignupRequest.getProviderDescription())
                 .isIndividual(providerSignupRequest.isIndividual())
@@ -78,12 +81,14 @@ public class ProviderService {
         providerDetails.setUuid(UuidGenerator.generateRandomString(12));
         provider.setProviderDetails(providerDetails);
         providerDetails.setUser(provider);
+
+        log.info("Saving customer");
         userRepository.save(provider);
         return new ResponseEntity<>(new ApiResponse(true, "provider saved"), HttpStatus.CREATED);
     }
 
     public ResponseEntity<ApiResponse> assignServiceToProvider(String serviceUuid, String providerUuid, ServiceProvider serviceProviderRequest){
-
+        log.info("Adding a service to a provider");
         Provider provider = providerRepository.findByUuid(providerUuid).orElseThrow(
                 ()-> new EntityNotFoundException("No provider with the identifier provided")
         );
@@ -102,7 +107,7 @@ public class ProviderService {
                 throw new EntityAlreadyExistException("Service already exist on your list");
             }
         });
-
+        log.info("Building service to a provider relationship");
         ServiceProvider serviceProvider = ServiceProvider.builder()
                 .experienceInMonths(serviceProviderRequest.getExperienceInMonths())
                 .serviceOfferingDescription(serviceProviderRequest.getServiceOfferingDescription())
@@ -111,6 +116,7 @@ public class ProviderService {
                 .service(service)
                 .build();
         serviceProvider.setUuid(UuidGenerator.generateRandomString(12));
+        log.info("Saving a service-provider relationship");
         serviceProviderRepository.save(serviceProvider);
 
         return new ResponseEntity<>(new ApiResponse(true, "service added to your list"), HttpStatus.OK);

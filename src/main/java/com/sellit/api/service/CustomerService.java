@@ -12,6 +12,7 @@ import com.sellit.api.repository.RoleRepository;
 import com.sellit.api.repository.UserAddressRepository;
 import com.sellit.api.repository.UserRepository;
 import com.sellit.api.utils.UuidGenerator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 @Service
+@Slf4j
 public class CustomerService {
 
     final UserRepository userRepository;
@@ -47,6 +49,8 @@ public class CustomerService {
         if(userRepository.existsByMobileNumber(customerSignupRequest.getCustomer().getMobileNumber())){
             throw new EntityAlreadyExistException("mobile number already taken");
         }
+
+        log.info("Signup customer request ");
         User customer = User.builder()
                         .firstName(customerSignupRequest.getCustomer().getFirstName())
                         .email(customerSignupRequest.getCustomer().getEmail().toLowerCase())
@@ -75,9 +79,9 @@ public class CustomerService {
 
         customer.setAddress(customerAddress);
         customerAddress.setUser(customer);
+        log.info("Saving the customer");
         userRepository.save(customer);
         return new ResponseEntity<>(new ApiResponse(true, "customer saved"), HttpStatus.CREATED);
     }
-
 
 }

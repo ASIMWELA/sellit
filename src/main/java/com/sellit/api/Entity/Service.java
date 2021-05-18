@@ -29,8 +29,8 @@ public class Service extends BaseEntity {
     @LazyCollection(LazyCollectionOption.FALSE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<ServiceProvider> serviceProviders;
-    @OneToMany(mappedBy = "service")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "service", fetch = FetchType.LAZY)
+    @LazyCollection(LazyCollectionOption.TRUE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<ServiceRequest> serviceRequests;
 }

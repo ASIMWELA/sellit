@@ -37,9 +37,8 @@ public class ServiceProvider extends BaseEntity {
     @JoinColumn(name = "provider_id")
     @LazyCollection(LazyCollectionOption.FALSE)
     Provider provider;
-
-    @OneToMany(mappedBy = "serviceProvider")
-    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "serviceProvider", fetch = FetchType.LAZY)
+    @LazyCollection(LazyCollectionOption.TRUE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<ServiceDeliveryOffer> serviceDeliveryOffers;
 

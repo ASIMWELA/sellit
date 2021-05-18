@@ -1,9 +1,7 @@
 package com.sellit.api.controller;
 
 
-import com.sellit.api.Entity.Service;
-import com.sellit.api.Entity.ServiceCategory;
-import com.sellit.api.Entity.ServiceRequest;
+import com.sellit.api.Entity.*;
 import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.service.ServiceTransactions;
@@ -40,11 +38,20 @@ public class ServiceTransactionsController {
     public ResponseEntity<PagedResponse> getServices(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return serviceTransactions.getServices(pageNo, pageSize);
     }
-    @PostMapping("/{customerUuid}/{serviceUuid}")
+    @PostMapping("/request/{customerUuid}/{serviceUuid}")
     @Transactional
     public ResponseEntity<ApiResponse> requestService(@PathVariable @NonNull String customerUuid, @PathVariable @NonNull String serviceUuid, @RequestBody @Valid ServiceRequest serviceRequest){
-       //TODO: test request service end point
         return serviceTransactions.requestService(customerUuid, serviceUuid, serviceRequest);
+    }
+    @PostMapping("/offer/{serviceRequestUuid}/{serviceProviderUuid}")
+    @Transactional
+    public ResponseEntity<ApiResponse> serviceDeliveryOffer(@NonNull @PathVariable String serviceRequestUuid, @NonNull @PathVariable String serviceProviderUuid, @RequestBody @Valid ServiceDeliveryOffer serviceDeliveryOffer){
+        return serviceTransactions.serviceDeliveryOffer(serviceRequestUuid, serviceProviderUuid, serviceDeliveryOffer);
+    }
+    @PostMapping("/complete-offer/{serviceDeliveryOfferUuid}")
+    @Transactional
+    public ResponseEntity<ApiResponse> acceptServiceOffer(@NonNull @PathVariable String serviceDeliveryOfferUuid, @RequestBody @Valid ServiceAppointment serviceAppointment){
+        return serviceTransactions.acceptServiceOffer(serviceDeliveryOfferUuid, serviceAppointment);
     }
 
 

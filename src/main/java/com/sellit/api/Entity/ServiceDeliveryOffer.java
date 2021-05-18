@@ -22,10 +22,10 @@ import java.util.Objects;
 @Table(name = "service_delivery_offers")
 public class ServiceDeliveryOffer extends BaseEntity {
 
-    @Column(name="discount_in_percent", length = 50)
+    @Column(name="discount_in_percent", length = 50, nullable = false)
     @PositiveOrZero
     double discountInPercent;
-    @Column(name="estimated_cost", length = 50)
+    @Column(name="estimated_cost", length = 50, nullable = false)
     @PositiveOrZero
     @NotEmpty
     double estimatedCost;
