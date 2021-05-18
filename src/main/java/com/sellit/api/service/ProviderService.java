@@ -1,10 +1,8 @@
 package com.sellit.api.service;
 
-import com.sellit.api.Entity.Provider;
-import com.sellit.api.Entity.Role;
-import com.sellit.api.Entity.ServiceProvider;
-import com.sellit.api.Entity.User;
+import com.sellit.api.Entity.*;
 import com.sellit.api.Enum.ERole;
+import com.sellit.api.event.NewProviderReviewEvent;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.exception.OperationNotAllowedException;
@@ -13,12 +11,16 @@ import com.sellit.api.payload.provider.ProviderSignupRequest;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Collections;
+import java.util.Date;
 
 @Service
 @Slf4j
@@ -29,14 +31,22 @@ public class ProviderService {
     final private ProviderRepository providerRepository;
     final private ServiceProviderRepository serviceProviderRepository;
     final private ServiceRepository serviceRepository;
+    final private ServiceAppointmentRepository serviceAppointmentRepository;
+    final private ProviderReviewLogRepository providerReviewLogRepository;
 
-    public ProviderService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, ProviderRepository providerRepository, ServiceProviderRepository serviceProviderRepository, ServiceRepository serviceRepository) {
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
+
+    public ProviderService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, ProviderRepository providerRepository, ServiceProviderRepository serviceProviderRepository, ServiceRepository serviceRepository, ServiceAppointmentRepository serviceAppointmentRepository, ProviderReviewLogRepository providerReviewLogRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.providerRepository = providerRepository;
         this.serviceProviderRepository = serviceProviderRepository;
         this.serviceRepository = serviceRepository;
+        this.serviceAppointmentRepository = serviceAppointmentRepository;
+        this.providerReviewLogRepository = providerReviewLogRepository;
     }
 
     public ResponseEntity<ApiResponse> signupProvider(ProviderSignupRequest providerSignupRequest){
@@ -120,6 +130,45 @@ public class ProviderService {
         serviceProviderRepository.save(serviceProvider);
 
         return new ResponseEntity<>(new ApiResponse(true, "service added to your list"), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ApiResponse> submitProviderReview(String serviceAppointmentUuid, Principal principal,ProviderReviewLog providerReviewLog){
+       log.info("Request to review a provider");
+        ServiceAppointment serviceAppointment = serviceAppointmentRepository.findByUuid(serviceAppointmentUuid).orElseThrow(
+                ()->new EntityNotFoundException("No service appointment with the provided identifier")
+        );
+
+        String authenticatedUserName = principal.getName();
+
+        if(!serviceAppointment.getServiceDeliveryOffer().isOfferAccepted()){
+            log.error("Unaccepted review rejected");
+            throw new OperationNotAllowedException("You cannot review unaccepted offer");
+        }
+
+        if(!serviceAppointment.getServiceDeliveryOffer().getServiceRequest().getUser().getUserName().equals(authenticatedUserName)){
+           log.error("Unaccepted review rejected");
+            throw new OperationNotAllowedException("You cannot review a provider whom you dont have a completed appointment with");
+        }
+
+        providerReviewLog.setReviewDate(new Date());
+        providerReviewLog.setUuid(UuidGenerator.generateRandomString(12));
+        double avgReview = (providerReviewLog.getAvgPunctualityRating()
+                + providerReviewLog.getAvgProficiencyRating()
+                +providerReviewLog.getAvgPriceRating()
+                +providerReviewLog.getAvgProfessionalismRating()
+                +providerReviewLog.getAvgCommunicationRating())/5.0;
+        providerReviewLog.setOverallRating(avgReview);
+        String serviceProviderUuid = serviceAppointment.getServiceDeliveryOffer().getServiceProvider().getUuid();
+        log.info("Saving a review for {}", serviceProviderUuid);
+
+        providerReviewLogRepository.save(providerReviewLog);
+           NewProviderReviewEvent event = new NewProviderReviewEvent(serviceProviderUuid);
+           applicationEventPublisher.publishEvent(event);
+
+        //TODO:Complete the function: get service provider uuid and publish it to the event
+
+return null;
+
     }
 
 }

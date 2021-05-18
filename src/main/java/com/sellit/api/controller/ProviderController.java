@@ -4,12 +4,14 @@ import com.sellit.api.Entity.ServiceProvider;
 import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
 import com.sellit.api.service.ProviderService;
+import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/providers")
@@ -30,5 +32,11 @@ public class ProviderController {
     @Transactional
     public ResponseEntity<ApiResponse> mapServiceToProvider(@PathVariable String serviceUuid, @PathVariable String providerUuid, @RequestBody @Valid ServiceProvider serviceProvider){
         return providerService.assignServiceToProvider(serviceUuid,providerUuid, serviceProvider);
+    }
+
+    @PostMapping("/reviews/{serviceAppointmentUuid}")
+    @Transactional
+    public void reviewProvider(@PathVariable @NonNull String serviceAppointmentUuid, Principal principal){
+        providerService.submitProviderReview(serviceAppointmentUuid,principal);
     }
 }

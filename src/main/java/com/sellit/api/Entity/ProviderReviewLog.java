@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -14,22 +15,28 @@ import java.util.Date;
 @Entity
 @Table(name = "provider_review_logs")
 public class ProviderReviewLog  extends BaseEntity {
-    @Column(name = "punctuality_rating", length = 10)
+    @Column(name = "punctuality_rating", length = 10, nullable = false)
+    @PositiveOrZero
     double avgPunctualityRating;
-    @Column(name = "proficiency_rating",length = 10)
+    @Column(name = "proficiency_rating",length = 10, nullable = false)
+    @PositiveOrZero
     double avgProficiencyRating;
-    @Column(name = "professionalism_rating", length = 10)
+    @Column(name = "professionalism_rating", length = 10, nullable = false)
+    @PositiveOrZero
     double avgProfessionalismRating;
-    @Column(name = "communication_rating", length = 10)
+    @Column(name = "communication_rating", length = 10, nullable = false)
+    @PositiveOrZero
     double avgCommunicationRating;
-    @Column(name = "price_rating", length = 10)
+    @Column(name = "price_rating", length = 10, nullable = false)
+    @PositiveOrZero
     double avgPriceRating;
-    @Lob
-    @Column(name="review")
+    @Column(name="review", nullable = false, length = 1500)
+    @NonNull
     String review;
-    @Column(name = "overall_rating", length = 10)
+    @Column(name = "overall_rating", length = 10, nullable = false)
+    @PositiveOrZero
     double overallRating;
-    @Column(name="review_date")
+    @Column(name="review_date", nullable = false)
     Date reviewDate;
     @ManyToOne(targetEntity = ServiceAppointment.class)
     @JoinColumn(name="service_appointment_id")
