@@ -158,12 +158,12 @@ public class ProviderService {
                 +providerReviewLog.getAvgProfessionalismRating()
                 +providerReviewLog.getAvgCommunicationRating())/5.0;
         providerReviewLog.setOverallRating(avgReview);
-        String serviceProviderUuid = serviceAppointment.getServiceDeliveryOffer().getServiceProvider().getUuid();
-        log.info("Saving a review for {}", serviceProviderUuid);
+
+        log.info("Saving a review for {}", providerReviewLog.getServiceAppointment().getServiceDeliveryOffer().getServiceProvider().getProvider().getUuid());
 
         providerReviewLogRepository.save(providerReviewLog);
-           NewProviderReviewEvent event = new NewProviderReviewEvent(serviceProviderUuid);
-           applicationEventPublisher.publishEvent(event);
+        NewProviderReviewEvent event = new NewProviderReviewEvent(providerReviewLog.getUuid());
+        applicationEventPublisher.publishEvent(event);
 
         //TODO:Complete the function: get service provider uuid and publish it to the event
 

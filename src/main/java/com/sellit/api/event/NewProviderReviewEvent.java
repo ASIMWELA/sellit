@@ -6,13 +6,13 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 @Setter
 public class NewProviderReviewEvent extends ApplicationEvent {
-    private String providerUuid;
-    public NewProviderReviewEvent(Object source, String providerUuid) {
+    private String proverReviewLogUuid;
+    public NewProviderReviewEvent(Object source, String proverReviewLogUuid) {
         super(source);
-        this.providerUuid = providerUuid;
+        this.proverReviewLogUuid = proverReviewLogUuid;
     }
-    public NewProviderReviewEvent(String providerUuid) {
-        super(providerUuid);
-        this.providerUuid = providerUuid;
+    public NewProviderReviewEvent(String proverReviewLogUuid) {
+        super(proverReviewLogUuid);
+        this.proverReviewLogUuid = proverReviewLogUuid;
     }
 }
