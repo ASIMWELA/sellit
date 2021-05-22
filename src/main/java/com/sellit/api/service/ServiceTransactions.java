@@ -141,6 +141,7 @@ public class ServiceTransactions {
         serviceAppointment.setServiceDeliveredOn(new Date());
         serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
         serviceAppointment.setUuid(UuidGenerator.generateRandomString(12));
+        serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
         serviceAppointmentRepository.save(serviceAppointment);
         log.info("Accepted Offer " + serviceDeliveryOfferUuid);
         return new ResponseEntity<>(new ApiResponse(true, "Appointment booked"), HttpStatus.OK);

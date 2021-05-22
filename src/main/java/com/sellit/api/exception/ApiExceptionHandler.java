@@ -117,4 +117,16 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler
 
     }
 
+    @ExceptionHandler(OperationNotAllowedException.class)
+    protected ResponseEntity<Object> handleOperationNotAllowed(OperationNotAllowedException ex)
+    {
+        ApiException apiError = new ApiException(UNAUTHORIZED);
+        apiError.setMessage(ex.getMessage());
+        apiError.setCode(apiError.getStatus().value());
+        return buildResponseEntity(apiError);
+
+    }
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.sellit.api.controller;
 
+import com.sellit.api.Entity.ProviderReviewLog;
 import com.sellit.api.Entity.ServiceProvider;
 import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
@@ -36,7 +37,7 @@ public class ProviderController {
 
     @PostMapping("/reviews/{serviceAppointmentUuid}")
     @Transactional
-    public void reviewProvider(@PathVariable @NonNull String serviceAppointmentUuid, Principal principal){
-        providerService.submitProviderReview(serviceAppointmentUuid,principal);
+    public ResponseEntity<ApiResponse> reviewProvider(@PathVariable @NonNull String serviceAppointmentUuid, Principal principal, @RequestBody @Valid ProviderReviewLog providerReviewLog){
+        return providerService.submitProviderReview(serviceAppointmentUuid,principal, providerReviewLog);
     }
 }

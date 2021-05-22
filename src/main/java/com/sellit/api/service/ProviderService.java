@@ -158,17 +158,11 @@ public class ProviderService {
                 +providerReviewLog.getAvgProfessionalismRating()
                 +providerReviewLog.getAvgCommunicationRating())/5.0;
         providerReviewLog.setOverallRating(avgReview);
-
-        log.info("Saving a review for {}", providerReviewLog.getServiceAppointment().getServiceDeliveryOffer().getServiceProvider().getProvider().getUuid());
-
+        providerReviewLog.setServiceAppointment(serviceAppointment);
         providerReviewLogRepository.save(providerReviewLog);
         NewProviderReviewEvent event = new NewProviderReviewEvent(providerReviewLog.getUuid());
         applicationEventPublisher.publishEvent(event);
-
-        //TODO:Complete the function: get service provider uuid and publish it to the event
-
-return null;
-
+        return new ResponseEntity<>(new ApiResponse(true, "Review success"), HttpStatus.OK);
     }
 
 }
