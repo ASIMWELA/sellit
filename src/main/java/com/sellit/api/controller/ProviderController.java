@@ -3,6 +3,7 @@ package com.sellit.api.controller;
 import com.sellit.api.Entity.ProviderReviewLog;
 import com.sellit.api.Entity.ServiceProvider;
 import com.sellit.api.payload.ApiResponse;
+import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
 import com.sellit.api.service.ProviderService;
 import lombok.NonNull;
@@ -12,6 +13,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.security.Principal;
 
 @RestController
@@ -39,5 +42,9 @@ public class ProviderController {
     @Transactional
     public ResponseEntity<ApiResponse> reviewProvider(@PathVariable @NonNull String serviceAppointmentUuid, Principal principal, @RequestBody @Valid ProviderReviewLog providerReviewLog){
         return providerService.submitProviderReview(serviceAppointmentUuid,principal, providerReviewLog);
+    }
+    @GetMapping
+    public ResponseEntity<PagedResponse> getProviders(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
+        return providerService.getProviders(pageNo, pageSize);
     }
 }

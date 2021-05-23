@@ -1,5 +1,6 @@
 package com.sellit.api.payload;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,5 +18,9 @@ public class PageMetadata {
     boolean firstPage;
     boolean hasNext;
     boolean hasPrevious;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    String nextPage;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    String previousPage;
 
 }

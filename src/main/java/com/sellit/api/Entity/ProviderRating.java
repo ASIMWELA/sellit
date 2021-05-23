@@ -37,6 +37,6 @@ public class ProviderRating extends BaseEntity {
     @Column(name = "updated_on", length = 10)
     Date updatedOn;
     @OneToOne
-    @JoinColumn(name="provider_id", referencedColumnName = "id", unique = true)
+    @JoinColumn(name="provider_id", referencedColumnName = "id", unique = true, nullable = false)
     Provider provider;
 }

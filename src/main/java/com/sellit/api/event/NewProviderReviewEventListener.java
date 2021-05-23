@@ -31,14 +31,13 @@ public class NewProviderReviewEventListener implements ApplicationListener<NewPr
     @Transactional
     public void onApplicationEvent(NewProviderReviewEvent newProviderReviewEvent) {
 
-        //wait until the providerReview log is saved successfully
-        log.info("Updating The overall rating for service : {}", newProviderReviewEvent.getProverReviewLogUuid());
-
         ProviderReviewLog providerReviewLog = providerReviewLogRepository.findByUuid(newProviderReviewEvent.getProverReviewLogUuid()).orElseThrow(
                 ()->new EntityNotFoundException("No review log found with the provided identifier")
         );
 
         Provider provider = providerReviewLog.getServiceAppointment().getServiceDeliveryOffer().getServiceProvider().getProvider();
+
+        log.info("Updating The overall rating for provider : {}", provider.getUuid());
 
         ProviderRating providerRating = provider.getProviderRating();
 
@@ -73,6 +72,7 @@ public class NewProviderReviewEventListener implements ApplicationListener<NewPr
         }
         overallProviderRating.setUuid(UuidGenerator.generateRandomString(12));
         overallProviderRating.setUpdatedOn(new Date());
+        overallProviderRating.setProvider(provider);
         provider.setProviderRating(overallProviderRating);
         providerRatingRepository.save(overallProviderRating);
     }

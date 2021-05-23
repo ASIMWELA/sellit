@@ -7,20 +7,28 @@ import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.exception.OperationNotAllowedException;
 import com.sellit.api.payload.ApiResponse;
+import com.sellit.api.payload.PageMetadata;
+import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.Principal;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -163,6 +171,32 @@ public class ProviderService {
         NewProviderReviewEvent event = new NewProviderReviewEvent(providerReviewLog.getUuid());
         applicationEventPublisher.publishEvent(event);
         return new ResponseEntity<>(new ApiResponse(true, "Review success"), HttpStatus.OK);
+    }
+
+    public ResponseEntity<PagedResponse> getProviders(int pageNo, int pageSize){
+        Pageable pageRequest = PageRequest.of(pageNo, pageSize);
+        Slice<Provider> providers = providerRepository.findAll(pageRequest);
+        List<Provider> totalNum = providerRepository.findAll();
+        PageMetadata pageMetadata = PageMetadata.builder()
+                .firstPage(providers.isFirst())
+                .lastPage(providers.isLast())
+                .pageNumber(providers.getNumber())
+                .pageSize(providers.getSize())
+                .numberOfRecordsOnPage(providers.getNumberOfElements())
+                .totalNumberOfRecords(totalNum.size())
+                .hasNext(providers.hasNext())
+                .hasPrevious(providers.hasPrevious())
+                .build();
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        if(providers.hasNext()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/providers?pageNo="+(providers.getNumber()+1) + "&pageSize="+providers.getSize());
+        }
+        if(providers.hasPrevious()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/providers?pageNo="+(providers.getNumber()-1)+ "&pageSize="+providers.getSize());
+        }
+        PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
+                                        .data(providers.getContent()).build();
+        return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
     }
 
 }

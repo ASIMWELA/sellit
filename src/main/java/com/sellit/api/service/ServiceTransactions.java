@@ -4,18 +4,23 @@ import com.sellit.api.Entity.*;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.payload.ApiResponse;
+import com.sellit.api.payload.JsonResponse;
 import com.sellit.api.payload.PageMetadata;
 import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -86,10 +91,17 @@ public class ServiceTransactions {
         pageMetadata.setTotalNumberOfRecords(totalNumberOfServices.size());
         pageMetadata.setHasPrevious(services.hasPrevious());
         pageMetadata.setPageNumber(services.getNumber());
-        pageMetadata.setPageSize((services.getSize()));
+        pageMetadata.setPageSize(services.getSize());
         pageMetadata.setNumberOfRecordsOnPage(services.getNumberOfElements());
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        if(services.hasNext()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/services?pageNo="+(services.getNumber()+1) + "&pageSize="+services.getSize());
+        }
+        if(services.hasPrevious()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/services?pageNo="+(services.getNumber()-1)+ "&pageSize="+services.getSize());
+        }
         PagedResponse response = new PagedResponse();
-        response.set_embedded(services.getContent());
+        response.setData(services.getContent());
         response.setPageMetadata(pageMetadata);
         log.info("Returned services information");
         return new ResponseEntity<>(response,HttpStatus.OK );
@@ -145,6 +157,16 @@ public class ServiceTransactions {
         serviceAppointmentRepository.save(serviceAppointment);
         log.info("Accepted Offer " + serviceDeliveryOfferUuid);
         return new ResponseEntity<>(new ApiResponse(true, "Appointment booked"), HttpStatus.OK);
+    }
+
+    public ResponseEntity<JsonResponse> getServiceProviders(String serviceUuid){
+            com.sellit.api.Entity.Service service = serviceRepository.findByUuid(serviceUuid).orElseThrow(
+                    ()->new EntityNotFoundException("No service with the given identifier")
+            );
+        //Hibernate.initialize(service.getServiceProviders());
+        List<ServiceProvider> sp=service.getServiceProviders();
+                JsonResponse res = JsonResponse.builder().data(sp).build();
+        return  new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 }

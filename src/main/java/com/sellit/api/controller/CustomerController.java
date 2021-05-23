@@ -23,8 +23,6 @@ public class CustomerController {
     public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
-
-
     @PostMapping
     public ResponseEntity<ApiResponse> signupCustomer(@RequestBody @Valid CustomerSignupRequest customerSignupRequest){
         return customerService.signupCustomer(customerSignupRequest);
