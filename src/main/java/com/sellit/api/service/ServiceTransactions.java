@@ -10,17 +10,14 @@ import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 
@@ -144,7 +141,7 @@ public class ServiceTransactions {
        return new ResponseEntity<>(new ApiResponse(true, "offer placed"),HttpStatus.OK);
     }
 
-    public ResponseEntity<ApiResponse> acceptServiceOffer(String serviceDeliveryOfferUuid, ServiceAppointment serviceAppointment){
+    public ResponseEntity<ServiceAppointment> acceptServiceOffer(String serviceDeliveryOfferUuid, ServiceAppointment serviceAppointment){
         log.info("Accepting " +serviceDeliveryOfferUuid +" offer");
         ServiceDeliveryOffer serviceDeliveryOffer = serviceDeliveryOfferRepository.findByUuid(serviceDeliveryOfferUuid).orElseThrow(
                 ()->new EntityNotFoundException("No service delivery offer with the given identifier"));
@@ -154,19 +151,54 @@ public class ServiceTransactions {
         serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
         serviceAppointment.setUuid(UuidGenerator.generateRandomString(12));
         serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
-        serviceAppointmentRepository.save(serviceAppointment);
+        ServiceAppointment serviceAppointment1 = serviceAppointmentRepository.save(serviceAppointment);
         log.info("Accepted Offer " + serviceDeliveryOfferUuid);
-        return new ResponseEntity<>(new ApiResponse(true, "Appointment booked"), HttpStatus.OK);
+        return new ResponseEntity<>(serviceAppointment1, HttpStatus.OK);
     }
 
     public ResponseEntity<JsonResponse> getServiceProviders(String serviceUuid){
-            com.sellit.api.Entity.Service service = serviceRepository.findByUuid(serviceUuid).orElseThrow(
-                    ()->new EntityNotFoundException("No service with the given identifier")
-            );
-        //Hibernate.initialize(service.getServiceProviders());
+        log.info("Get providers for Service : {}", serviceUuid);
+        com.sellit.api.Entity.Service service = serviceRepository.findByUuid(serviceUuid).orElseThrow(()->new EntityNotFoundException("No service with the given identifier"));
         List<ServiceProvider> sp=service.getServiceProviders();
-                JsonResponse res = JsonResponse.builder().data(sp).build();
+        JsonResponse res = JsonResponse.builder().data(sp).build();
+        log.info("Returned Providers for service : {}", serviceUuid);
         return  new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    public ResponseEntity<PagedResponse> getServiceRequests(int pageNo, int pageSize){
+        log.info("Get service requests");
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Slice<ServiceRequest> requests = serviceRequestRepository.findAll(pageable);
+        List<ServiceRequest> totalNum = serviceRequestRepository.findAll();
+        PageMetadata pageMetadata = PageMetadata.builder()
+                .firstPage(requests.isFirst())
+                .lastPage(requests.isLast())
+                .pageNumber(requests.getNumber())
+                .pageSize(requests.getSize())
+                .numberOfRecordsOnPage(requests.getNumberOfElements())
+                .totalNumberOfRecords(totalNum.size())
+                .hasNext(requests.hasNext())
+                .hasPrevious(requests.hasPrevious())
+                .build();
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        if(requests.hasNext()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/services/requests?pageNo="+(requests.getNumber()+1) + "&pageSize="+requests.getSize());
+        }
+        if(requests.hasPrevious()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/services/requests?pageNo="+(requests.getNumber()-1)+ "&pageSize="+requests.getSize());
+        }
+        PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
+                .data(requests.getContent()).build();
+        log.info("Returned service requests");
+        return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
+    }
+
+    public ResponseEntity<JsonResponse> getOffersForARequest(String serviceRequestUuid){
+        log.info("Get offers for service : {}", serviceRequestUuid);
+        ServiceRequest request = serviceRequestRepository.findByUuid(serviceRequestUuid).orElseThrow(()->new EntityNotFoundException("No request with the given identifier"));
+        List<ServiceDeliveryOffer> offers = request.getServiceDeliveryOffers();
+        log.info("Returned Offers for service : {}", serviceRequestUuid);
+        return new ResponseEntity<>(new JsonResponse(offers),HttpStatus.OK);
     }
 
 }

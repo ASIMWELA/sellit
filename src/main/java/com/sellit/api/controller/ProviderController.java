@@ -32,13 +32,13 @@ public class ProviderController {
     public ResponseEntity<ApiResponse> signupProvider(@RequestBody @Valid ProviderSignupRequest providerSignupRequest){
         return providerService.signupProvider(providerSignupRequest);
     }
-    @PostMapping("/{serviceUuid}/{providerUuid}")
+    @PostMapping("/{serviceUuid}/{providerUuid}/map-service-to-provider")
     @Transactional
     public ResponseEntity<ApiResponse> mapServiceToProvider(@PathVariable String serviceUuid, @PathVariable String providerUuid, @RequestBody @Valid ServiceProvider serviceProvider){
         return providerService.assignServiceToProvider(serviceUuid,providerUuid, serviceProvider);
     }
 
-    @PostMapping("/reviews/{serviceAppointmentUuid}")
+    @PostMapping("/{serviceAppointmentUuid}/reviews")
     @Transactional
     public ResponseEntity<ApiResponse> reviewProvider(@PathVariable @NonNull String serviceAppointmentUuid, Principal principal, @RequestBody @Valid ProviderReviewLog providerReviewLog){
         return providerService.submitProviderReview(serviceAppointmentUuid,principal, providerReviewLog);

@@ -1,5 +1,6 @@
 package com.sellit.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -37,10 +38,12 @@ public class ServiceRequest extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "service_id")
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore
     Service service;
     @OneToMany(mappedBy = "serviceRequest")
     @LazyCollection(LazyCollectionOption.FALSE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonIgnore
     List<ServiceDeliveryOffer> serviceDeliveryOffers;
 
     @Override

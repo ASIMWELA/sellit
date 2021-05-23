@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -31,7 +30,7 @@ public class ServiceTransactionsController {
     public ResponseEntity<ApiResponse> saveServiceCategory(@RequestBody @Valid ServiceCategory serviceCategory){
         return serviceTransactions.saveServiceCategory(serviceCategory);
     }
-    @PostMapping("/{categoryUuid}")
+    @PostMapping("/{categoryUuid}/save-service")
     @Transactional
     public ResponseEntity<ApiResponse> saveService(@RequestBody @Valid Service service, @PathVariable("categoryUuid") String categoryUuid){
         return serviceTransactions.saveService(service, categoryUuid);
@@ -52,13 +51,22 @@ public class ServiceTransactionsController {
     }
     @PostMapping("/{serviceDeliveryOfferUuid}/complete-offer")
     @Transactional
-    public ResponseEntity<ApiResponse> acceptServiceOffer(@NonNull @PathVariable String serviceDeliveryOfferUuid, @RequestBody @Valid ServiceAppointment serviceAppointment){
+    public ResponseEntity<ServiceAppointment> acceptServiceOffer(@NonNull @PathVariable String serviceDeliveryOfferUuid, @RequestBody @Valid ServiceAppointment serviceAppointment){
         return serviceTransactions.acceptServiceOffer(serviceDeliveryOfferUuid, serviceAppointment);
     }
 
     @GetMapping("/{serviceUuid}/providers")
     public ResponseEntity<JsonResponse> getServiceProviders(@NonNull @PathVariable String serviceUuid){
         return serviceTransactions.getServiceProviders(serviceUuid);
+    }
+    @GetMapping("/requests")
+    public ResponseEntity<PagedResponse> getServiceRequests(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
+        return serviceTransactions.getServiceRequests(pageNo, pageSize);
+    }
+
+    @GetMapping("/requests/{requestUuid}/offers")
+    public ResponseEntity<JsonResponse> getServiceRequests(@PathVariable @NonNull String requestUuid){
+        return serviceTransactions.getOffersForARequest(requestUuid);
     }
 
 

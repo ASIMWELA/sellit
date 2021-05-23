@@ -1,6 +1,7 @@
 package com.sellit.api.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +22,6 @@ import java.util.Objects;
 @Entity
 @Table(name = "service_delivery_offers")
 public class ServiceDeliveryOffer extends BaseEntity {
-
     @Column(name="discount_in_percent", length = 50, nullable = false)
     @PositiveOrZero
     double discountInPercent;
@@ -35,16 +35,17 @@ public class ServiceDeliveryOffer extends BaseEntity {
     boolean isOfferAccepted;
     @OneToOne(mappedBy = "serviceDeliveryOffer")
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnore
     ServiceAppointment serviceAppointments ;
     @ManyToOne
     @JoinColumn(name = "service_request_id")
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore
     ServiceRequest serviceRequest;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "service_provider_id")
     @LazyCollection(LazyCollectionOption.FALSE)
     ServiceProvider serviceProvider;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
