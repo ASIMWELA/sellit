@@ -2,6 +2,9 @@ package com.sellit.api.service;
 
 import com.sellit.api.Entity.*;
 import com.sellit.api.Enum.ERole;
+import com.sellit.api.dto.ProviderRatingDto;
+import com.sellit.api.dto.ServiceProviderDto;
+import com.sellit.api.dto.UserDetailsDto;
 import com.sellit.api.event.NewProviderReviewEvent;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -196,6 +200,66 @@ public class ProviderService {
         }
         PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
                                         .data(providers.getContent()).build();
+        return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
+    }
+
+    public ResponseEntity<PagedResponse> getServiceProviders(int pageNo, int pageSize){
+        Pageable pageRequest = PageRequest.of(pageNo, pageSize);
+        Slice<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(pageRequest);
+        List<ServiceProvider> totalNum = serviceProviderRepository.findAll();
+        PageMetadata pageMetadata = PageMetadata.builder()
+                .firstPage(serviceProviders.isFirst())
+                .lastPage(serviceProviders.isLast())
+                .pageNumber(serviceProviders.getNumber())
+                .pageSize(serviceProviders.getSize())
+                .numberOfRecordsOnPage(serviceProviders.getNumberOfElements())
+                .totalNumberOfRecords(totalNum.size())
+                .hasNext(serviceProviders.hasNext())
+                .hasPrevious(serviceProviders.hasPrevious())
+                .build();
+        List<ServiceProviderDto> serviceProviderDtoList =  new ArrayList<>();
+        serviceProviders.getContent().forEach(serviceProvider -> {
+            User user = serviceProvider.getProvider().getUser();
+            ProviderRating providerRating = serviceProvider.getProvider().getProviderRating();
+            ProviderRatingDto providerRatingDto = new ProviderRatingDto();
+            if(providerRating != null){
+                providerRatingDto.setAvgPriceRating(providerRating.getAvgPriceRating());
+                providerRatingDto.setAvgProficiencyRating(providerRating.getAvgProficiencyRating());
+                providerRatingDto.setAvgProfessionalismRating(providerRating.getAvgProfessionalismRating());
+                providerRatingDto.setAvgCommunicationRating(providerRating.getAvgCommunicationRating());
+                providerRatingDto.setAvgPunctualityRating(providerRating.getAvgPunctualityRating());
+                providerRatingDto.setOverallRating(providerRating.getOverallRating());
+                providerRatingDto.setUpdatedOn(providerRating.getUpdatedOn());
+            }
+            UserDetailsDto userDetailsDto = null;
+            if(user != null){
+                userDetailsDto=  UserDetailsDto.builder()
+                        .userName(user.getUserName())
+                        .email(user.getEmail())
+                        .firstName(user.getFirstName())
+                        .mobileNumber(user.getMobileNumber())
+                        .lastName(user.getLastName())
+                        .build();
+            }
+            ServiceProviderDto serviceProviderDto = ServiceProviderDto.builder()
+                    .uuid(serviceProvider.getUuid())
+                    .providerRating(providerRatingDto)
+                    .serviceOfferingDescription(serviceProvider.getServiceOfferingDescription())
+                    .billingRatePerHour(serviceProvider.getBillingRatePerHour())
+                    .experienceInMonths(serviceProvider.getExperienceInMonths())
+                    .userDetails(userDetailsDto)
+                    .build();
+            serviceProviderDtoList.add(serviceProviderDto);
+        });
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        if(serviceProviders.hasNext()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/providers/service-providers?pageNo="+(serviceProviders.getNumber()+1) + "&pageSize="+serviceProviders.getSize());
+        }
+        if(serviceProviders.hasPrevious()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/providers/service-providers?pageNo="+(serviceProviders.getNumber()-1)+ "&pageSize="+serviceProviders.getSize());
+        }
+        PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
+                .data(serviceProviderDtoList).build();
         return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
     }
 

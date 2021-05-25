@@ -47,4 +47,9 @@ public class ProviderController {
     public ResponseEntity<PagedResponse> getProviders(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return providerService.getProviders(pageNo, pageSize);
     }
+
+    @GetMapping("/service-providers")
+    public ResponseEntity<PagedResponse> getServiceProviders(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
+        return providerService.getServiceProviders(pageNo, pageSize);
+    }
 }

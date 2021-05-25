@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -54,7 +55,6 @@ public class ServiceTransactionsController {
     public ResponseEntity<ServiceAppointment> acceptServiceOffer(@NonNull @PathVariable String serviceDeliveryOfferUuid, @RequestBody @Valid ServiceAppointment serviceAppointment){
         return serviceTransactions.acceptServiceOffer(serviceDeliveryOfferUuid, serviceAppointment);
     }
-
     @GetMapping("/{serviceUuid}/providers")
     public ResponseEntity<JsonResponse> getServiceProviders(@NonNull @PathVariable String serviceUuid){
         return serviceTransactions.getServiceProviders(serviceUuid);
@@ -69,5 +69,13 @@ public class ServiceTransactionsController {
         return serviceTransactions.getOffersForARequest(requestUuid);
     }
 
+    @GetMapping("/appointments/{userUuid}")
+    public ResponseEntity<List<ServiceAppointment>> getUserAppointments(@PathVariable @NonNull String userUuid){
+        return serviceTransactions.getUserAppointments(userUuid);
+    }
 
+//    @GetMapping("/appointments")
+//    public ResponseEntity<PagedResponse> getServiceAppointments(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
+//        return serviceTransactions.getAppointments(pageNo, pageSize);
+//    }
 }

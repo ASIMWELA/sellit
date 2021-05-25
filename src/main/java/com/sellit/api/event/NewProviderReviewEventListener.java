@@ -29,8 +29,7 @@ public class NewProviderReviewEventListener implements ApplicationListener<NewPr
     @SneakyThrows
     @Override
     @Transactional
-    public void onApplicationEvent(NewProviderReviewEvent newProviderReviewEvent) {
-
+    public synchronized void onApplicationEvent(NewProviderReviewEvent newProviderReviewEvent) {
         ProviderReviewLog providerReviewLog = providerReviewLogRepository.findByUuid(newProviderReviewEvent.getProverReviewLogUuid()).orElseThrow(
                 ()->new EntityNotFoundException("No review log found with the provided identifier")
         );

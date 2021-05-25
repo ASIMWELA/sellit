@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,8 +34,9 @@ public class ServiceTransactions {
     final private ServiceProviderRepository serviceProviderRepository;
     final private ServiceDeliveryOfferRepository serviceDeliveryOfferRepository;
     final private ServiceAppointmentRepository serviceAppointmentRepository;
+    final private ProviderRepository providerRepository;
 
-    public ServiceTransactions(ServiceCategoryRepository serviceCategoryRepository, ServiceRepository serviceRepository, UserRepository userRepository, ServiceRequestRepository serviceRequestRepository, ServiceProviderRepository serviceProviderRepository, ServiceDeliveryOfferRepository serviceDeliveryOfferRepository, ServiceAppointmentRepository serviceAppointmentRepository) {
+    public ServiceTransactions(ServiceCategoryRepository serviceCategoryRepository, ServiceRepository serviceRepository, UserRepository userRepository, ServiceRequestRepository serviceRequestRepository, ServiceProviderRepository serviceProviderRepository, ServiceDeliveryOfferRepository serviceDeliveryOfferRepository, ServiceAppointmentRepository serviceAppointmentRepository, ProviderRepository providerRepository) {
         this.serviceCategoryRepository = serviceCategoryRepository;
         this.serviceRepository = serviceRepository;
         this.userRepository = userRepository;
@@ -42,6 +44,7 @@ public class ServiceTransactions {
         this.serviceProviderRepository = serviceProviderRepository;
         this.serviceDeliveryOfferRepository = serviceDeliveryOfferRepository;
         this.serviceAppointmentRepository = serviceAppointmentRepository;
+        this.providerRepository = providerRepository;
     }
 
     public ResponseEntity<ApiResponse> saveServiceCategory(ServiceCategory serviceCategoryRequest){
@@ -199,6 +202,63 @@ public class ServiceTransactions {
         List<ServiceDeliveryOffer> offers = request.getServiceDeliveryOffers();
         log.info("Returned Offers for service : {}", serviceRequestUuid);
         return new ResponseEntity<>(new JsonResponse(offers),HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<ServiceAppointment>> getUserAppointments(String userUuid){
+        User user = userRepository.findByUuid(userUuid).orElseThrow(
+                ()->new EntityNotFoundException("No user with the identifier provided")
+        );
+        List<ServiceRequest> serviceRequest = user.getServiceRequests();
+        List<ServiceAppointment> serviceAppointments= new ArrayList<>();
+        if(serviceRequest.size()>0){
+           List<ServiceDeliveryOffer> serviceDeliveryOffers = serviceRequest.get(0).getServiceDeliveryOffers();
+           if(serviceDeliveryOffers.size()>0){
+               serviceDeliveryOffers.forEach(offer->{
+                   if(offer.getServiceAppointments() != null){
+                       serviceAppointments.add(offer.getServiceAppointments());
+                   }
+               });
+           }
+        }
+        if(serviceAppointments.size()>0){
+            return new ResponseEntity<>(serviceAppointments, HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<JsonResponse> getProviderReviewLogs(int pageNo, int pageSize, String serviceProviderUuid){
+        log.info("Get appointment requests");
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        ServiceProvider serviceProvider = serviceProviderRepository.findByUuid(serviceProviderUuid).orElseThrow(
+                ()->new EntityNotFoundException("No provider with the identifier provided")
+        );
+
+        User u = userRepository.findByUuid(serviceProviderUuid).orElseThrow(
+                ()-> new EntityNotFoundException("No user with the provided identifier")
+        );
+
+
+        Provider provider = serviceProvider.getProvider();
+
+        List<ProviderReviewLog> logs = new ArrayList<>();
+        serviceProvider.getServiceDeliveryOffers().forEach(offer->{
+            if(offer.getServiceAppointments() != null){
+                if(offer.getServiceAppointments().getProviderReviewLogs().size()>0){
+                    logs.addAll(offer.getServiceAppointments().getProviderReviewLogs());
+                }
+            }
+
+        });
+
+        serviceProvider.getServiceDeliveryOffers().get(0).getServiceAppointments().getProviderReviewLogs();
+
+
+
+
+
+
+        return null;
     }
 
 }

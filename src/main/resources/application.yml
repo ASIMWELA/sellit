@@ -9,6 +9,13 @@ spring:
     username: "${env.DB_USER_NAME}"
     password: "${env.DB_PASSWORD}"
     initialization-mode: always
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 10
+      maximum-pool-size: 50
+      idle-timeout: 10000
+      max-lifetime: 1000
+      auto-commit: true
   main:
     banner-mode: off
   jpa:
@@ -18,7 +25,7 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: none
-    open-in-view: false
+    open-in-view:  false
 
 
   jackson:

@@ -1,5 +1,6 @@
 package com.sellit.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +26,9 @@ public class ServiceAppointment extends BaseEntity{
     Date serviceStartTime;
     @Column(name="service_end_time", nullable = false)
     Date serviceEndTime;
+//    @Column(name="appointment_desc", nullable = false, length = 1000)
+//    @NonNull
+//    String appointmentDescription;
     @OneToOne
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JoinColumn(name="service_delivery_offer_id", referencedColumnName = "id", unique = true)
