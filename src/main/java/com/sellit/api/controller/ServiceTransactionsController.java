@@ -31,6 +31,11 @@ public class ServiceTransactionsController {
     public ResponseEntity<ApiResponse> saveServiceCategory(@RequestBody @Valid ServiceCategory serviceCategory){
         return serviceTransactions.saveServiceCategory(serviceCategory);
     }
+
+    @GetMapping("/categories")
+    public ResponseEntity<PagedResponse> getServiceCategories(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
+        return serviceTransactions.getCategories(pageNo, pageSize);
+    }
     @PostMapping("/{categoryUuid}/save-service")
     @Transactional
     public ResponseEntity<ApiResponse> saveService(@RequestBody @Valid Service service, @PathVariable("categoryUuid") String categoryUuid){
@@ -65,17 +70,17 @@ public class ServiceTransactionsController {
     }
 
     @GetMapping("/requests/{requestUuid}/offers")
-    public ResponseEntity<JsonResponse> getServiceRequests(@PathVariable @NonNull String requestUuid){
+    public ResponseEntity<JsonResponse> getRequestOffers(@PathVariable @NonNull String requestUuid){
         return serviceTransactions.getOffersForARequest(requestUuid);
     }
 
     @GetMapping("/appointments/{userUuid}")
-    public ResponseEntity<List<ServiceAppointment>> getUserAppointments(@PathVariable @NonNull String userUuid){
+    public ResponseEntity<JsonResponse> getUserAppointments(@PathVariable @NonNull String userUuid){
         return serviceTransactions.getUserAppointments(userUuid);
     }
-
-//    @GetMapping("/appointments")
-//    public ResponseEntity<PagedResponse> getServiceAppointments(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
-//        return serviceTransactions.getAppointments(pageNo, pageSize);
-//    }
+    @GetMapping("/service-provider/{serviceProviderUuid}/review-logs")
+    @Transactional
+    public ResponseEntity<JsonResponse> getProviderReviewLogs(@PathVariable String serviceProviderUuid){
+        return serviceTransactions.getProviderReviewLogs(serviceProviderUuid);
+    }
 }

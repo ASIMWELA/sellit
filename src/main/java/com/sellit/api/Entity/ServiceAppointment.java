@@ -36,5 +36,6 @@ public class ServiceAppointment extends BaseEntity{
     @OneToMany(mappedBy = "serviceAppointment")
     @LazyCollection(LazyCollectionOption.FALSE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonIgnore
     List<ProviderReviewLog> providerReviewLogs = new ArrayList<>();
 }

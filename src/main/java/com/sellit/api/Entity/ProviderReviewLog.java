@@ -1,5 +1,7 @@
 package com.sellit.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -47,6 +49,7 @@ public class ProviderReviewLog  extends BaseEntity {
     Date reviewDate;
     @ManyToOne(targetEntity = ServiceAppointment.class)
     @JoinColumn(name="service_appointment_id")
+    @JsonIgnore
     ServiceAppointment serviceAppointment;
 
 

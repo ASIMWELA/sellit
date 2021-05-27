@@ -1,6 +1,7 @@
 package com.sellit.api.service;
 
 import com.sellit.api.Entity.*;
+import com.sellit.api.dto.*;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.payload.ApiResponse;
@@ -200,47 +201,125 @@ public class ServiceTransactions {
         log.info("Get offers for service : {}", serviceRequestUuid);
         ServiceRequest request = serviceRequestRepository.findByUuid(serviceRequestUuid).orElseThrow(()->new EntityNotFoundException("No request with the given identifier"));
         List<ServiceDeliveryOffer> offers = request.getServiceDeliveryOffers();
+
+       List<ServiceOfferDto> offerDtos = new ArrayList<>();
+
+        offers.forEach(offer->{
+            OfferPackage offerPackage =
+                    OfferPackage.builder()
+                    .estimatedCost(offer.getEstimatedCost())
+                    .offerSubmissionDate(offer.getOfferSubmissionDate())
+                    .discountInPercent(offer.getDiscountInPercent())
+                    .uuid(offer.getUuid()).build();
+            User user = offer.getServiceProvider().getProvider().getUser();
+            UserDetailsDto userDetailsDto = null;
+            Provider provider = offer.getServiceProvider().getProvider();
+            if(user != null){
+                userDetailsDto = UserDetailsDto.builder()
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .mobileNumber(user.getMobileNumber())
+                        .userName(user.getUserName())
+                        .build();
+            }
+            ServiceProvider serviceProvider =  offer.getServiceProvider();
+
+            ProviderRating providerRating = offer.getServiceProvider().getProvider().getProviderRating();
+            ProviderRatingDto providerRatingDto =
+                    ProviderRatingDto.builder()
+                            .avgPriceRating(providerRating.getAvgPriceRating())
+                            .avgCommunicationRating(providerRating.getAvgCommunicationRating())
+                            .avgProfessionalismRating(providerRating.getAvgProfessionalismRating())
+                            .avgProficiencyRating(providerRating.getAvgProficiencyRating())
+                            .avgPunctualityRating(providerRating.getAvgPunctualityRating())
+                            .overallRating(providerRating.getOverallRating())
+                    .build();
+
+            ProviderDetails providerDetails =
+                    ProviderDetails.builder()
+                            .billingRatePerHour(serviceProvider.getBillingRatePerHour())
+                            .experienceInMonths(serviceProvider.getExperienceInMonths())
+                            .officeAddress(provider.getOfficeAddress())
+                            .personalDetails(userDetailsDto)
+                            .providerRating(providerRatingDto)
+                            .serviceOfferingDescription(serviceProvider.getServiceOfferingDescription())
+                            .build();
+            ServiceOfferDto serviceOfferDto=
+                    ServiceOfferDto.builder()
+                            .offerPackage(offerPackage)
+                            .providerDetails(providerDetails)
+                    .build();
+            offerDtos.add(serviceOfferDto);
+        });
+
         log.info("Returned Offers for service : {}", serviceRequestUuid);
-        return new ResponseEntity<>(new JsonResponse(offers),HttpStatus.OK);
+        return new ResponseEntity<>(new JsonResponse(offerDtos),HttpStatus.OK);
     }
 
-    public ResponseEntity<List<ServiceAppointment>> getUserAppointments(String userUuid){
+    public ResponseEntity<JsonResponse> getUserAppointments(String userUuid){
         User user = userRepository.findByUuid(userUuid).orElseThrow(
                 ()->new EntityNotFoundException("No user with the identifier provided")
         );
         List<ServiceRequest> serviceRequest = user.getServiceRequests();
-        List<ServiceAppointment> serviceAppointments= new ArrayList<>();
+        List<UserAppointmentDto> serviceAppointments= new ArrayList<>();
         if(serviceRequest.size()>0){
            List<ServiceDeliveryOffer> serviceDeliveryOffers = serviceRequest.get(0).getServiceDeliveryOffers();
            if(serviceDeliveryOffers.size()>0){
                serviceDeliveryOffers.forEach(offer->{
                    if(offer.getServiceAppointments() != null){
-                       serviceAppointments.add(offer.getServiceAppointments());
+
+                       Provider provider = offer.getServiceProvider().getProvider();
+                       ServiceAppointment appointment = offer.getServiceAppointments();
+                       User user1 = offer.getServiceProvider().getProvider().getUser();
+                       ServiceProvider serviceProvider = offer.getServiceProvider();
+                       UserDetailsDto userDetailsDto =
+                               UserDetailsDto.builder()
+                                    .userName(user1.getUserName())
+                                    .email(user1.getEmail())
+                                    .mobileNumber(user1.getMobileNumber())
+                                .build();
+                       OfferPackage offerPackage =
+                               OfferPackage.builder()
+                                       .discountInPercent(offer.getDiscountInPercent())
+                                       .estimatedCost(offer.getEstimatedCost())
+                                       .offerSubmissionDate(offer.getOfferSubmissionDate())
+                               .build();
+                       ProviderDetails providerDetails =
+                               ProviderDetails.builder()
+                               .personalDetails(userDetailsDto)
+                               .billingRatePerHour(serviceProvider.getBillingRatePerHour())
+                               .serviceOfferingDescription(serviceProvider.getServiceOfferingDescription())
+                               .experienceInMonths(serviceProvider.getExperienceInMonths())
+                               .officeAddress(provider.getOfficeAddress())
+                               .build();
+                       AppointmentDetails appointmentDetails =
+                               AppointmentDetails.builder()
+                               .providerDetails(providerDetails)
+                               .offerPackage(offerPackage)
+                               .build();
+
+                       UserAppointmentDto userAppointmentDto =
+                               UserAppointmentDto.builder()
+                                       .serviceDeliveredOn(appointment.getServiceDeliveredOn())
+                                       .serviceEndTime(appointment.getServiceEndTime())
+                                       .serviceStartTime(appointment.getServiceStartTime())
+                                       .uuid(appointment.getUuid())
+                                       .appointmentDetails(appointmentDetails)
+                                       .build();
+                       serviceAppointments.add(userAppointmentDto);
                    }
                });
            }
         }
-        if(serviceAppointments.size()>0){
-            return new ResponseEntity<>(serviceAppointments, HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
-        }
+            return new ResponseEntity<>(JsonResponse.builder().data(serviceAppointments).build(), HttpStatus.OK);
     }
 
-    public ResponseEntity<JsonResponse> getProviderReviewLogs(int pageNo, int pageSize, String serviceProviderUuid){
-        log.info("Get appointment requests");
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+    public ResponseEntity<JsonResponse> getProviderReviewLogs(String serviceProviderUuid){
+        log.info("Get provider review logs requests");
         ServiceProvider serviceProvider = serviceProviderRepository.findByUuid(serviceProviderUuid).orElseThrow(
                 ()->new EntityNotFoundException("No provider with the identifier provided")
         );
-
-        User u = userRepository.findByUuid(serviceProviderUuid).orElseThrow(
-                ()-> new EntityNotFoundException("No user with the provided identifier")
-        );
-
-
-        Provider provider = serviceProvider.getProvider();
-
         List<ProviderReviewLog> logs = new ArrayList<>();
         serviceProvider.getServiceDeliveryOffers().forEach(offer->{
             if(offer.getServiceAppointments() != null){
@@ -251,14 +330,34 @@ public class ServiceTransactions {
 
         });
 
-        serviceProvider.getServiceDeliveryOffers().get(0).getServiceAppointments().getProviderReviewLogs();
-
-
-
-
-
-
-        return null;
+        return new ResponseEntity<>(JsonResponse.builder().data(logs).build(), HttpStatus.OK);
     }
 
+    public ResponseEntity<PagedResponse> getCategories(Integer pageNo, Integer pageSize) {
+        log.info("Get service requests");
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Slice<ServiceCategory> categories = serviceCategoryRepository.findAll(pageable);
+        List<ServiceCategory> totalNum = serviceCategoryRepository.findAll();
+        PageMetadata pageMetadata = PageMetadata.builder()
+                .firstPage(categories.isFirst())
+                .lastPage(categories.isLast())
+                .pageNumber(categories.getNumber())
+                .pageSize(categories.getSize())
+                .numberOfRecordsOnPage(categories.getNumberOfElements())
+                .totalNumberOfRecords(totalNum.size())
+                .hasNext(categories.hasNext())
+                .hasPrevious(categories.hasPrevious())
+                .build();
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        if(categories.hasNext()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/services/categories?pageNo="+(categories.getNumber()+1) + "&pageSize="+categories.getSize());
+        }
+        if(categories.hasPrevious()){
+            pageMetadata.setNextPage(baseUrl+"/api/v1/services/categories?pageNo="+(categories.getNumber()-1)+ "&pageSize="+categories.getSize());
+        }
+        PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
+                .data(categories.getContent()).build();
+        log.info("Returned service categories requests");
+        return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
+    }
 }

@@ -16,9 +16,7 @@ import com.sellit.api.payload.provider.ProviderSignupRequest;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -45,12 +43,9 @@ public class ProviderService {
     final private ServiceRepository serviceRepository;
     final private ServiceAppointmentRepository serviceAppointmentRepository;
     final private ProviderReviewLogRepository providerReviewLogRepository;
+    final private ApplicationEventPublisher applicationEventPublisher;
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-
-
-    public ProviderService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, ProviderRepository providerRepository, ServiceProviderRepository serviceProviderRepository, ServiceRepository serviceRepository, ServiceAppointmentRepository serviceAppointmentRepository, ProviderReviewLogRepository providerReviewLogRepository) {
+    public ProviderService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, ProviderRepository providerRepository, ServiceProviderRepository serviceProviderRepository, ServiceRepository serviceRepository, ServiceAppointmentRepository serviceAppointmentRepository, ProviderReviewLogRepository providerReviewLogRepository, ApplicationEventPublisher applicationEventPublisher) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
@@ -59,6 +54,7 @@ public class ProviderService {
         this.serviceRepository = serviceRepository;
         this.serviceAppointmentRepository = serviceAppointmentRepository;
         this.providerReviewLogRepository = providerReviewLogRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     public ResponseEntity<ApiResponse> signupProvider(ProviderSignupRequest providerSignupRequest){
@@ -177,32 +173,6 @@ public class ProviderService {
         return new ResponseEntity<>(new ApiResponse(true, "Review success"), HttpStatus.OK);
     }
 
-    public ResponseEntity<PagedResponse> getProviders(int pageNo, int pageSize){
-        Pageable pageRequest = PageRequest.of(pageNo, pageSize);
-        Slice<Provider> providers = providerRepository.findAll(pageRequest);
-        List<Provider> totalNum = providerRepository.findAll();
-        PageMetadata pageMetadata = PageMetadata.builder()
-                .firstPage(providers.isFirst())
-                .lastPage(providers.isLast())
-                .pageNumber(providers.getNumber())
-                .pageSize(providers.getSize())
-                .numberOfRecordsOnPage(providers.getNumberOfElements())
-                .totalNumberOfRecords(totalNum.size())
-                .hasNext(providers.hasNext())
-                .hasPrevious(providers.hasPrevious())
-                .build();
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
-        if(providers.hasNext()){
-            pageMetadata.setNextPage(baseUrl+"/api/v1/providers?pageNo="+(providers.getNumber()+1) + "&pageSize="+providers.getSize());
-        }
-        if(providers.hasPrevious()){
-            pageMetadata.setNextPage(baseUrl+"/api/v1/providers?pageNo="+(providers.getNumber()-1)+ "&pageSize="+providers.getSize());
-        }
-        PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
-                                        .data(providers.getContent()).build();
-        return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
-    }
-
     public ResponseEntity<PagedResponse> getServiceProviders(int pageNo, int pageSize){
         Pageable pageRequest = PageRequest.of(pageNo, pageSize);
         Slice<ServiceProvider> serviceProviders = serviceProviderRepository.findAll(pageRequest);
@@ -253,10 +223,10 @@ public class ProviderService {
         });
         String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         if(serviceProviders.hasNext()){
-            pageMetadata.setNextPage(baseUrl+"/api/v1/providers/service-providers?pageNo="+(serviceProviders.getNumber()+1) + "&pageSize="+serviceProviders.getSize());
+            pageMetadata.setNextPage(baseUrl+"/api/v1/providers?pageNo="+(serviceProviders.getNumber()+1) + "&pageSize="+serviceProviders.getSize());
         }
         if(serviceProviders.hasPrevious()){
-            pageMetadata.setNextPage(baseUrl+"/api/v1/providers/service-providers?pageNo="+(serviceProviders.getNumber()-1)+ "&pageSize="+serviceProviders.getSize());
+            pageMetadata.setNextPage(baseUrl+"/api/v1/providers?pageNo="+(serviceProviders.getNumber()-1)+ "&pageSize="+serviceProviders.getSize());
         }
         PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
                 .data(serviceProviderDtoList).build();

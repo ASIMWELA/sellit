@@ -43,12 +43,9 @@ public class ProviderController {
     public ResponseEntity<ApiResponse> reviewProvider(@PathVariable @NonNull String serviceAppointmentUuid, Principal principal, @RequestBody @Valid ProviderReviewLog providerReviewLog){
         return providerService.submitProviderReview(serviceAppointmentUuid,principal, providerReviewLog);
     }
-    @GetMapping
-    public ResponseEntity<PagedResponse> getProviders(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
-        return providerService.getProviders(pageNo, pageSize);
-    }
 
-    @GetMapping("/service-providers")
+    @GetMapping
+
     public ResponseEntity<PagedResponse> getServiceProviders(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return providerService.getServiceProviders(pageNo, pageSize);
     }
