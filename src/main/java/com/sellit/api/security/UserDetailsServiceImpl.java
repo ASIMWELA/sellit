@@ -25,7 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
 
         User user = userRepository.findByUserName(userName.toLowerCase()).orElseThrow(
-                ()->new EntityNotFoundException("No user with username number "+ userName)
+                ()->new EntityNotFoundException("Wrong credentials")
         );
 
         return UserDetailsImpl.build(user);

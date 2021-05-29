@@ -1,4 +1,5 @@
 app:
+  APP_NAME: "${env.APP_NAME}"
   jwt:
     secrete: "${env.JWT_SECRETE}"
     expiration: "${env.JWT_EXPIRATION_M_SECONDS}"
@@ -31,6 +32,26 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
+  mail:
+    host: smtp.gmail.com
+    username: "${MAIL_USERNAME}"
+    password: "${MAIL_PASSWORD}"
+    protocol: smtp
+    port: 587
+    test-connection: false
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+          ssl:
+            trust: smtp.gmail.com
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+
 
 server:
   error:

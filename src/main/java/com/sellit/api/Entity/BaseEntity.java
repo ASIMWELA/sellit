@@ -22,6 +22,6 @@ public abstract class BaseEntity implements Serializable {
     @JsonIgnore
     Long id;
 
-    @Column(name="uuid", unique = true, length = 12, nullable = false)
+    @Column(name="uuid", unique = true, length = 12, nullable = false, updatable = false)
     String uuid;
 }

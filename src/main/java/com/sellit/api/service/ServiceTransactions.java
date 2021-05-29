@@ -2,6 +2,7 @@ package com.sellit.api.service;
 
 import com.sellit.api.Entity.*;
 import com.sellit.api.dto.*;
+import com.sellit.api.event.AppointmentEvent;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.payload.ApiResponse;
@@ -10,7 +11,10 @@ import com.sellit.api.payload.PageMetadata;
 import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,18 +30,20 @@ import java.util.List;
 
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ServiceTransactions {
 
-    final private ServiceCategoryRepository serviceCategoryRepository;
-    final private ServiceRepository serviceRepository;
-    final private UserRepository userRepository;
-    final private ServiceRequestRepository serviceRequestRepository;
-    final private ServiceProviderRepository serviceProviderRepository;
-    final private ServiceDeliveryOfferRepository serviceDeliveryOfferRepository;
-    final private ServiceAppointmentRepository serviceAppointmentRepository;
-    final private ProviderRepository providerRepository;
+    ServiceCategoryRepository serviceCategoryRepository;
+    ServiceRepository serviceRepository;
+    UserRepository userRepository;
+    ServiceRequestRepository serviceRequestRepository;
+    ServiceProviderRepository serviceProviderRepository;
+    ServiceDeliveryOfferRepository serviceDeliveryOfferRepository;
+    ServiceAppointmentRepository serviceAppointmentRepository;
+    ProviderRepository providerRepository;
+    ApplicationEventPublisher eventPublisher;
 
-    public ServiceTransactions(ServiceCategoryRepository serviceCategoryRepository, ServiceRepository serviceRepository, UserRepository userRepository, ServiceRequestRepository serviceRequestRepository, ServiceProviderRepository serviceProviderRepository, ServiceDeliveryOfferRepository serviceDeliveryOfferRepository, ServiceAppointmentRepository serviceAppointmentRepository, ProviderRepository providerRepository) {
+    public ServiceTransactions(ServiceCategoryRepository serviceCategoryRepository, ServiceRepository serviceRepository, UserRepository userRepository, ServiceRequestRepository serviceRequestRepository, ServiceProviderRepository serviceProviderRepository, ServiceDeliveryOfferRepository serviceDeliveryOfferRepository, ServiceAppointmentRepository serviceAppointmentRepository, ProviderRepository providerRepository, ApplicationEventPublisher eventPublisher) {
         this.serviceCategoryRepository = serviceCategoryRepository;
         this.serviceRepository = serviceRepository;
         this.userRepository = userRepository;
@@ -46,6 +52,7 @@ public class ServiceTransactions {
         this.serviceDeliveryOfferRepository = serviceDeliveryOfferRepository;
         this.serviceAppointmentRepository = serviceAppointmentRepository;
         this.providerRepository = providerRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public ResponseEntity<ApiResponse> saveServiceCategory(ServiceCategory serviceCategoryRequest){
@@ -156,6 +163,8 @@ public class ServiceTransactions {
         serviceAppointment.setUuid(UuidGenerator.generateRandomString(12));
         serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
         ServiceAppointment serviceAppointment1 = serviceAppointmentRepository.save(serviceAppointment);
+        AppointmentEvent appointmentEvent =  new AppointmentEvent(serviceAppointment.getUuid());
+        eventPublisher.publishEvent(appointmentEvent);
         log.info("Accepted Offer " + serviceDeliveryOfferUuid);
         return new ResponseEntity<>(serviceAppointment1, HttpStatus.OK);
     }

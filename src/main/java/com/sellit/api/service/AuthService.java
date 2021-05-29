@@ -3,11 +3,14 @@ package com.sellit.api.service;
 
 import com.sellit.api.Entity.User;
 import com.sellit.api.exception.EntityNotFoundException;
+import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.SigninRequest;
 import com.sellit.api.payload.SigninResponse;
 import com.sellit.api.payload.TokenPayload;
 import com.sellit.api.repository.UserRepository;
 import com.sellit.api.security.JwtTokenProvider;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,11 +22,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthService {
 
-    final AuthenticationManager authenticationManager;
-    final JwtTokenProvider tokenProvider;
-    final UserRepository userRepository;
+    AuthenticationManager authenticationManager;
+    JwtTokenProvider tokenProvider;
+    UserRepository userRepository;
 
     public AuthService(AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
@@ -41,7 +45,7 @@ public class AuthService {
 
         log.info("Getting user information");
         User user =userRepository.findByUserName(tokenProvider.getUserNameFromToken(jwt).toLowerCase()).orElseThrow(
-                ()->new EntityNotFoundException("User not found with the name")
+                ()->new EntityNotFoundException("Wrong credentials")
         );
         SigninResponse response = new SigninResponse();
         TokenPayload tokenPayload = TokenPayload.builder().build();
@@ -53,4 +57,23 @@ public class AuthService {
         log.info("Returning user information");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    public ResponseEntity<ApiResponse> blockUserAccount(String userUuid){
+        User user = userRepository.findByUuid(userUuid).orElseThrow(
+                ()-> new EntityNotFoundException("No user found with the identifier provided")
+        );
+        user.setEnabled(false);
+        userRepository.save(user);
+        return new ResponseEntity<>(new ApiResponse(true, "Account disabled succefully"), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ApiResponse> enableUser(String userUuid){
+        User user = userRepository.findByUuid(userUuid).orElseThrow(
+                ()-> new EntityNotFoundException("No user found with the identifier provided")
+        );
+        user.setEnabled(true);
+        userRepository.save(user);
+        return new ResponseEntity<>(new ApiResponse(true, "Account anabled"), HttpStatus.OK);
+    }
+
 }

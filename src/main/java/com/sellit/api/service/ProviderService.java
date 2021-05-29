@@ -13,9 +13,14 @@ import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.PageMetadata;
 import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
+import com.sellit.api.payload.provider.UpdateProviderDetailsRequest;
+import com.sellit.api.payload.provider.UpdateServiceProviderRequest;
 import com.sellit.api.repository.*;
 import com.sellit.api.utils.UuidGenerator;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,24 +31,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.groups.Default;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProviderService {
-    final private UserRepository userRepository;
-    final private PasswordEncoder passwordEncoder;
-    final private RoleRepository roleRepository;
-    final private ProviderRepository providerRepository;
-    final private ServiceProviderRepository serviceProviderRepository;
-    final private ServiceRepository serviceRepository;
-    final private ServiceAppointmentRepository serviceAppointmentRepository;
-    final private ProviderReviewLogRepository providerReviewLogRepository;
-    final private ApplicationEventPublisher applicationEventPublisher;
+    UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
+    ProviderRepository providerRepository;
+    ServiceProviderRepository serviceProviderRepository;
+    ServiceRepository serviceRepository;
+    ServiceAppointmentRepository serviceAppointmentRepository;
+    ProviderReviewLogRepository providerReviewLogRepository;
+    ApplicationEventPublisher applicationEventPublisher;
 
     public ProviderService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, ProviderRepository providerRepository, ServiceProviderRepository serviceProviderRepository, ServiceRepository serviceRepository, ServiceAppointmentRepository serviceAppointmentRepository, ProviderReviewLogRepository providerReviewLogRepository, ApplicationEventPublisher applicationEventPublisher) {
         this.userRepository = userRepository;
@@ -231,6 +235,50 @@ public class ProviderService {
         PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
                 .data(serviceProviderDtoList).build();
         return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
+    }
+
+    public ResponseEntity<ApiResponse> updateProvideDetails(String providerUuid, UpdateProviderDetailsRequest request){
+        ServiceProvider serviceProvider = serviceProviderRepository.findByUuid(providerUuid).orElseThrow(
+                ()->new EntityNotFoundException("No Provider found with the identifier provided")
+        );
+
+        Provider provider = serviceProvider.getProvider();
+
+        if(request.isIndividual() != provider.isIndividual()){
+            provider.setIndividual(request.isIndividual());
+        }
+        if(request.isRegisteredOffice() != provider.isRegisteredOffice()){
+            provider.setRegisteredOffice(request.isRegisteredOffice());
+        }
+        if (request.getProviderDescription() != null) {
+            provider.setProviderDescription(request.getProviderDescription());
+        }
+        if(request.getOfficeAddress() != null){
+            provider.setOfficeAddress(request.getOfficeAddress());
+        }
+        providerRepository.save(provider);
+
+        return new ResponseEntity<>(new ApiResponse(true, "Details updated"), HttpStatus.OK);
+    }
+
+    public ResponseEntity<ApiResponse> updateServiceProviderDetails(String serviceProviderUuid, UpdateServiceProviderRequest request){
+
+        ServiceProvider serviceProvider = serviceProviderRepository.findByUuid(serviceProviderUuid).orElseThrow(
+                ()-> new EntityNotFoundException("No provider with the provided identifier")
+        );
+
+        if(request.getServiceOfferingDescription() != null){
+            serviceProvider.setServiceOfferingDescription(request.getServiceOfferingDescription());
+        }
+        if(request.getBillingRatePerHour() != 0.0){
+
+            serviceProvider.setBillingRatePerHour(request.getBillingRatePerHour());
+        }
+        if(request.getExperienceInMonths() != 0){
+            serviceProvider.setExperienceInMonths(request.getExperienceInMonths());
+        }
+        serviceProviderRepository.save(serviceProvider);
+        return new ResponseEntity<>(new ApiResponse(true, "Updated successfully"), HttpStatus.OK);
     }
 
 }

@@ -3,6 +3,7 @@ package com.sellit.api.payload.customer;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 
@@ -13,9 +14,9 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @Builder
 public class CustomerSignupRequest {
-   @NotBlank(message = "customer cannot be empty")
-   Customer customer;
-   @NotBlank(message = "customer cannot be empty")
-   UserAddressPayload address;
+   @NonNull
+   @Valid Customer customer;
+   @NonNull
+   @Valid UserAddressPayload address;
 
 }

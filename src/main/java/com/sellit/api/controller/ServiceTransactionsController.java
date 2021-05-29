@@ -8,6 +8,7 @@ import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.service.ServiceTransactions;
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -26,7 +26,7 @@ public class ServiceTransactionsController {
     public ServiceTransactionsController(ServiceTransactions serviceTransactions) {
         this.serviceTransactions = serviceTransactions;
     }
-
+    @Secured({"ROLE_PROVIDER", "ROLE_ADMIN"})
     @PostMapping("/categories")
     public ResponseEntity<ApiResponse> saveServiceCategory(@RequestBody @Valid ServiceCategory serviceCategory){
         return serviceTransactions.saveServiceCategory(serviceCategory);
@@ -36,6 +36,7 @@ public class ServiceTransactionsController {
     public ResponseEntity<PagedResponse> getServiceCategories(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return serviceTransactions.getCategories(pageNo, pageSize);
     }
+    @Secured({"ROLE_PROVIDER", "ROLE_ADMIN"})
     @PostMapping("/{categoryUuid}/save-service")
     @Transactional
     public ResponseEntity<ApiResponse> saveService(@RequestBody @Valid Service service, @PathVariable("categoryUuid") String categoryUuid){
@@ -45,21 +46,26 @@ public class ServiceTransactionsController {
     public ResponseEntity<PagedResponse> getServices(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return serviceTransactions.getServices(pageNo, pageSize);
     }
+    @Secured("ROLE_CUSTOMER")
     @PostMapping("/{customerUuid}/{serviceUuid}/request-service")
     @Transactional
     public ResponseEntity<ApiResponse> requestService(@PathVariable @NonNull String customerUuid, @PathVariable @NonNull String serviceUuid, @RequestBody @Valid ServiceRequest serviceRequest){
         return serviceTransactions.requestService(customerUuid, serviceUuid, serviceRequest);
     }
+    @Secured("ROLE_PROVIDER")
     @PostMapping("/{serviceRequestUuid}/{serviceProviderUuid}/make-offer")
     @Transactional
     public ResponseEntity<ApiResponse> serviceDeliveryOffer(@NonNull @PathVariable String serviceRequestUuid, @NonNull @PathVariable String serviceProviderUuid, @RequestBody @Valid ServiceDeliveryOffer serviceDeliveryOffer){
         return serviceTransactions.serviceDeliveryOffer(serviceRequestUuid, serviceProviderUuid, serviceDeliveryOffer);
     }
+    @Secured("ROLE_CUSTOMER")
     @PostMapping("/{serviceDeliveryOfferUuid}/complete-offer")
     @Transactional
     public ResponseEntity<ServiceAppointment> acceptServiceOffer(@NonNull @PathVariable String serviceDeliveryOfferUuid, @RequestBody @Valid ServiceAppointment serviceAppointment){
         return serviceTransactions.acceptServiceOffer(serviceDeliveryOfferUuid, serviceAppointment);
     }
+
+    //TODO : COMPLTE CONFIGURING METHOD LEVEL SECURITY
     @GetMapping("/{serviceUuid}/providers")
     public ResponseEntity<JsonResponse> getServiceProviders(@NonNull @PathVariable String serviceUuid){
         return serviceTransactions.getServiceProviders(serviceUuid);

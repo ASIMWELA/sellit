@@ -21,4 +21,6 @@ public class UserDetailsDto {
     String email;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     String mobileNumber;
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    boolean isEnabled;
 }

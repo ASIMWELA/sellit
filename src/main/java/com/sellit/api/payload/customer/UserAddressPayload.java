@@ -13,13 +13,18 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class UserAddressPayload {
     @NotBlank(message = "region cannot be empty")
+    @NonNull
     String city;
     @NotBlank(message = "region cannot be empty")
+    @NonNull
     String country;
     @NotBlank(message = "region cannot be empty")
+    @NonNull
     String region;
     @NotBlank(message = "street cannot be empty")
+    @NonNull
     String street;
     @NotBlank(message = "locationDescription cannot be empty")
+    @NonNull
     String locationDescription;
 }

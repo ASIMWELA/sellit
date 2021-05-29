@@ -12,6 +12,8 @@ import com.sellit.api.repository.RoleRepository;
 import com.sellit.api.repository.UserAddressRepository;
 import com.sellit.api.repository.UserRepository;
 import com.sellit.api.utils.UuidGenerator;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +24,13 @@ import java.util.Collections;
 
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CustomerService {
 
-    final UserRepository userRepository;
-    final PasswordEncoder passwordEncoder;
-    final RoleRepository roleRepository;
-    final UserAddressRepository addressRepository;
+    UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
+    RoleRepository roleRepository;
+    UserAddressRepository addressRepository;
 
     public CustomerService(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,

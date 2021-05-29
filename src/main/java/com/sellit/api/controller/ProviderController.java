@@ -5,9 +5,12 @@ import com.sellit.api.Entity.ServiceProvider;
 import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.PagedResponse;
 import com.sellit.api.payload.provider.ProviderSignupRequest;
+import com.sellit.api.payload.provider.UpdateProviderDetailsRequest;
+import com.sellit.api.payload.provider.UpdateServiceProviderRequest;
 import com.sellit.api.service.ProviderService;
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +35,8 @@ public class ProviderController {
     public ResponseEntity<ApiResponse> signupProvider(@RequestBody @Valid ProviderSignupRequest providerSignupRequest){
         return providerService.signupProvider(providerSignupRequest);
     }
+
+    @Secured("ROLE_PROVIDER")
     @PostMapping("/{serviceUuid}/{providerUuid}/map-service-to-provider")
     @Transactional
     public ResponseEntity<ApiResponse> mapServiceToProvider(@PathVariable String serviceUuid, @PathVariable String providerUuid, @RequestBody @Valid ServiceProvider serviceProvider){
@@ -45,8 +50,17 @@ public class ProviderController {
     }
 
     @GetMapping
-
     public ResponseEntity<PagedResponse> getServiceProviders(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return providerService.getServiceProviders(pageNo, pageSize);
+    }
+    @Secured("ROLE_PROVIDER")
+    @PutMapping("/providerUuid/update")
+    public ResponseEntity<ApiResponse> updateProviderDetails(@PathVariable String providerUuid, @RequestBody @Valid UpdateProviderDetailsRequest updateProviderDetailsRequest){
+        return providerService.updateProvideDetails(providerUuid, updateProviderDetailsRequest);
+    }
+    @Secured("ROLE_PROVIDER")
+    @PutMapping("/providerUuid/update-services-details")
+    public ResponseEntity<ApiResponse> updateServiceOfferingDetails(@PathVariable String providerUuid, @RequestBody @Valid UpdateServiceProviderRequest updateProviderDetailsRequest){
+        return providerService.updateServiceProviderDetails(providerUuid, updateProviderDetailsRequest);
     }
 }

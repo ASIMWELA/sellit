@@ -84,12 +84,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter
                 //TODO:reconfigure method security
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST,
-                            "/api/v1/customers","/api/v1/login",
+                            "/api/v1/customers","/api/v1/auth/login",
                             "/api/v1/providers"
                             )
                             .permitAll()
                     .antMatchers(HttpMethod.GET,
-                        "/api/**"
+                        "/api/v1/providers",
+                            "/api/v1/services/categories",
+                            "/api/v1/services",
+                            "/api/v1/services/{serviceUuid}/providers"
                     )
                              .permitAll()
                 .antMatchers("/",
