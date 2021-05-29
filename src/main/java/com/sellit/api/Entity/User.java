@@ -38,7 +38,7 @@ public class User extends BaseEntity{
     String mobileNumber;
     @Column(name="is_provider",length = 3, nullable = false)
     boolean isAProvider;
-    @Column(name="isEnabled", length = 3, nullable = false)
+    @Column(name="is_enabled", length = 3, nullable = false)
     boolean isEnabled;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonInclude(JsonInclude.Include.NON_NULL)

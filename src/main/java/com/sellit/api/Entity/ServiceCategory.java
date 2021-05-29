@@ -8,6 +8,8 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +23,8 @@ import java.util.List;
 @Builder
 public class ServiceCategory extends BaseEntity {
     @Column(name="service_category_name", unique = true, length = 50, nullable = false)
-    @NonNull
+    @NotEmpty(message = "serviceCategoryName cannot be empty")
+    @Size(min=3, message = "serviceCategoryName should at least have 3 characters")
     String serviceCategoryName;
     @OneToMany(mappedBy = "serviceCategory", cascade = CascadeType.ALL)
     @LazyCollection(LazyCollectionOption.FALSE)

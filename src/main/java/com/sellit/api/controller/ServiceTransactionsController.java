@@ -65,7 +65,6 @@ public class ServiceTransactionsController {
         return serviceTransactions.acceptServiceOffer(serviceDeliveryOfferUuid, serviceAppointment);
     }
 
-    //TODO : COMPLTE CONFIGURING METHOD LEVEL SECURITY
     @GetMapping("/{serviceUuid}/providers")
     public ResponseEntity<JsonResponse> getServiceProviders(@NonNull @PathVariable String serviceUuid){
         return serviceTransactions.getServiceProviders(serviceUuid);

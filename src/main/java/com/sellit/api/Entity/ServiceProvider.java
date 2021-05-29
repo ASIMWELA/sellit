@@ -9,6 +9,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +29,7 @@ public class ServiceProvider extends BaseEntity {
     @NotBlank
     int experienceInMonths;
     @Column(name="service_offering_description", length = 800)
-    @NotBlank
+    @NotEmpty(message = "serviceOfferingDescription cannot be empty")
     String serviceOfferingDescription;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "service_id")

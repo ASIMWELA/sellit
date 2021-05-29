@@ -8,6 +8,8 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,14 +23,18 @@ import java.util.List;
 @Table(name = "service_appointments")
 public class ServiceAppointment extends BaseEntity{
     @Column(name="service_delivered_on", nullable = false)
+    @NonNull
     Date serviceDeliveredOn;
+    @NonNull
     @Column(name="service_start_time", nullable = false)
     Date serviceStartTime;
     @Column(name="service_end_time", nullable = false)
+    @NonNull
     Date serviceEndTime;
-//    @Column(name="appointment_desc", nullable = false, length = 1000)
-//    @NonNull
-//    String appointmentDescription;
+    @Column(name="appointment_desc", nullable = false, length = 1000)
+    @NotEmpty(message = "appointmentDescription cannot be empty")
+    @Size(min=15, message = "appointmentDescription should at least have 15 characters")
+    String appointmentDescription;
     @OneToOne
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JoinColumn(name="service_delivery_offer_id", referencedColumnName = "id", unique = true)

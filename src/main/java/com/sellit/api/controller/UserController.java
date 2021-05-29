@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,12 +22,11 @@ import javax.validation.constraints.PositiveOrZero;
 @Validated
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-
-    //TODO: COMPLETE CONFIG
     UsersService usersService;
     public UserController(UsersService usersService) {
         this.usersService = usersService;
     }
+    @Secured("ROLE_ADMIN")
     @GetMapping
     public ResponseEntity<PagedResponse> getUsers(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return usersService.getUsers(pageNo, pageSize);

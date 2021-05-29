@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -19,30 +20,30 @@ import java.util.Date;
 public class ProviderReviewLog  extends BaseEntity {
     @Column(name = "punctuality_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5)
+    @Size(max = 5, message = "avgPunctualityRating cannot only be greater than 5")
     double avgPunctualityRating;
     @Column(name = "proficiency_rating",length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5)
+    @Size(max = 5, message = "avgProficiencyRating cannot only be greater than 5")
     double avgProficiencyRating;
     @Column(name = "professionalism_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5)
+    @Size(max = 5, message = "avgProfessionalismRating cannot only be greater than 5")
     double avgProfessionalismRating;
     @Column(name = "communication_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5)
+    @Size(max = 5, message = "avgCommunicationRating cannot only be greater than 5")
     double avgCommunicationRating;
     @Column(name = "price_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5)
+    @Size(max = 5, message = "avgPriceRating cannot only be greater than 5")
     double avgPriceRating;
     @Column(name="review", nullable = false, length = 1500)
-    @NonNull
+    @NotEmpty(message = "review cannot be empty")
     String review;
     @Column(name = "overall_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5)
+    @Size(max = 5, message = "overallRating cannot only be greater than 5")
     double overallRating;
     @Column(name="review_date", nullable = false)
     Date reviewDate;

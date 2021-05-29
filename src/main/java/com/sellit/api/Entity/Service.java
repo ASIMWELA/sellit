@@ -9,6 +9,8 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @AllArgsConstructor
@@ -20,7 +22,8 @@ import java.util.List;
 @Table(name = "services")
 public class Service extends BaseEntity {
     @Column(name="service_name", unique = true, nullable = false)
-    @NonNull
+    @NotEmpty(message = "serviceName cannot be empty")
+    @Size(min=2, message = "serviceName should have at least 2 characters")
     String serviceName;
     @ManyToOne(targetEntity = ServiceCategory.class, cascade = CascadeType.ALL)
     @JoinColumn(name="service_category_id", nullable = false)

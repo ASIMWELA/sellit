@@ -4,16 +4,25 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import org.hibernate.PropertyValueException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ValidationException;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -40,6 +49,38 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler
     protected ResponseEntity<Object> handleEntityAlreadyExistException(EntityAlreadyExistException ex)
     {
         ApiException apiError = new ApiException(CONFLICT);
+        apiError.setMessage(ex.getMessage());
+        apiError.setCode(apiError.getStatus().value());
+        return buildResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    protected ResponseEntity<Object> handleValidationErrors(ValidationException ex)
+    {
+        ApiException apiError = new ApiException(BAD_REQUEST);
+        apiError.setMessage(ex.getMessage());
+        apiError.setCode(apiError.getStatus().value());
+        return buildResponseEntity(apiError);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        String errorList = ex
+                .getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.toList()).toString();
+        ApiException apiError = new ApiException(BAD_REQUEST);
+        apiError.setMessage(errorList);
+        apiError.setCode(apiError.getStatus().value());
+        return buildResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(PropertyValueException.class)
+    protected ResponseEntity<Object> handleValidationErrors(PropertyValueException ex)
+    {
+        ApiException apiError = new ApiException(BAD_REQUEST);
         apiError.setMessage(ex.getMessage());
         apiError.setCode(apiError.getStatus().value());
         return buildResponseEntity(apiError);

@@ -8,6 +8,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +22,7 @@ import java.util.Objects;
 @Table(name = "service_requests")
 public class ServiceRequest extends BaseEntity {
     @Column(name="requirement_description", length = 2500, nullable = false)
-    @NonNull
+    @NotEmpty
     String requirementDescription;
     @Column(name="required_on", nullable = false)
     @NonNull
