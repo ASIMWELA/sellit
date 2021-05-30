@@ -6,8 +6,6 @@ app:
 spring:
   datasource:
     url: "${env.DATABASE_URL}"
-    username: "${env.DB_USER_NAME}"
-    password: "${env.DB_PASSWORD}"
     initialization-mode: always
     hikari:
       connection-timeout: 20000
