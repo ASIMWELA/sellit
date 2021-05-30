@@ -14,7 +14,7 @@ import javax.validation.constraints.NotEmpty;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SigninRequest
 {
-    @NotEmpty(message = "Registration number cannot be empty")
+    @NotEmpty(message = "userName cannot be empty")
     String userName;
 
     @NotEmpty(message = "password cannot be empty")
