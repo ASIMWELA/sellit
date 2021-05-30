@@ -8,7 +8,9 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +24,8 @@ import java.util.Objects;
 @Table(name = "service_requests")
 public class ServiceRequest extends BaseEntity {
     @Column(name="requirement_description", length = 2500, nullable = false)
-    @NotEmpty
+    @NotEmpty(message = "requirementDescription cannot be empty")
+    @Size(min=10, max = 2500, message = "requirementDescription should be between 10 and 2500 characters")
     String requirementDescription;
     @Column(name="required_on", nullable = false)
     @NonNull

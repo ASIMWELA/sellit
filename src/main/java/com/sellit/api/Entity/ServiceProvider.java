@@ -23,10 +23,8 @@ import java.util.Objects;
 @Builder
 public class ServiceProvider extends BaseEntity {
     @Column(name="billing_rate_per_Hour", length = 20, nullable = false)
-    @NotBlank
     double billingRatePerHour;
     @Column(name="experience_in_months", nullable = false)
-    @NotBlank
     int experienceInMonths;
     @Column(name="service_offering_description", length = 800)
     @NotEmpty(message = "serviceOfferingDescription cannot be empty")

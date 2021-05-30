@@ -3,10 +3,7 @@ package com.sellit.api.payload.provider;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,9 +35,9 @@ public class ProviderSignupRequest {
     @NotEmpty(message = "mobileNumber cannot be blank")
     String mobileNumber;
     //business details
-    @NotBlank(message = "isIndividual boolean value cannot be blank")
+    @NotNull
     boolean isIndividual;
-    @NotBlank(message = "isRegisteredOffice boolean value cannot be blank")
+    @NotNull
     boolean isRegisteredOffice;
     @Size(min = 2, max = 500, message = "office address description should be between 2 and 500 in length")
     @NotEmpty(message = "officeAddress cannot be blank")

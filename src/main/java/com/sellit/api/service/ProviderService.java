@@ -104,9 +104,9 @@ public class ProviderService {
         provider.setProviderDetails(providerDetails);
         providerDetails.setUser(provider);
 
-        log.info("Saving customer");
+        log.info("Saving provider");
         userRepository.save(provider);
-        return new ResponseEntity<>(new ApiResponse(true, "provider saved"), HttpStatus.CREATED);
+        return new ResponseEntity<>(new ApiResponse(true, "Login to add services to be complete the process"), HttpStatus.CREATED);
     }
 
     public ResponseEntity<ApiResponse> assignServiceToProvider(String serviceUuid, String providerUuid, ServiceProvider serviceProviderRequest){

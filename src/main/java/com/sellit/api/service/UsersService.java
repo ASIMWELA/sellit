@@ -33,6 +33,7 @@ public class UsersService {
         this.userRepository = userRepository;
     }
     public ResponseEntity<PagedResponse> getUsers(int pageNo, int pageSize){
+       log.info("Return users Request");
         Pageable pageRequest = PageRequest.of(pageNo, pageSize);
         Slice<User> users = userRepository.findAll(pageRequest);
         List<User> totalNum = userRepository.findAll();
@@ -56,8 +57,9 @@ public class UsersService {
                                                  .lastName(user.getLastName()).build();
            userList.add(userDetailsDto);
        });
-
+        log.info("Returned Users");
         return new ResponseEntity<>(PagedResponse.builder().data(userList).pageMetadata(pageMetadata).build(), HttpStatus.OK);
+
     }
 
     public ResponseEntity<ApiResponse> updateUserDetails(String userUuid, UserUpdateRequest userUpdateRequest){
@@ -92,6 +94,7 @@ public class UsersService {
             user.setLastName(userUpdateRequest.getLastName());
         }
         userRepository.save(user);
+        log.info("Updated user {}", user.getUuid());
         return new ResponseEntity<>(new ApiResponse(true, "Details updated"), HttpStatus.OK);
     }
 
@@ -119,6 +122,7 @@ public class UsersService {
             user.setAddress(address);
             address.setUser(user);
             userRepository.save(user);
+            log.info("Updated the address of {}", user.getUuid());
             return new ResponseEntity<>(new ApiResponse(true, "Address updated"), HttpStatus.OK);
         }
         else {

@@ -23,7 +23,6 @@ import java.util.List;
 @Table(name = "service_appointments")
 public class ServiceAppointment extends BaseEntity{
     @Column(name="service_delivered_on", nullable = false)
-    @NonNull
     Date serviceDeliveredOn;
     @NonNull
     @Column(name="service_start_time", nullable = false)

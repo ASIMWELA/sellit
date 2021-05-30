@@ -1,6 +1,7 @@
 package com.sellit.api.service;
 
 
+import com.sellit.api.Entity.ServiceProvider;
 import com.sellit.api.Entity.User;
 import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.payload.ApiResponse;
@@ -47,6 +48,10 @@ public class AuthService {
         User user =userRepository.findByUserName(tokenProvider.getUserNameFromToken(jwt).toLowerCase()).orElseThrow(
                 ()->new EntityNotFoundException("Wrong credentials")
         );
+        String serviceProviderUuid = null;
+        if(user.isAProvider()){
+            serviceProviderUuid = user.getProviderDetails().getServices().get(0).getUuid();
+        }
         SigninResponse response = new SigninResponse();
         TokenPayload tokenPayload = TokenPayload.builder().build();
         tokenPayload.setAccessToken(jwt);
@@ -54,6 +59,7 @@ public class AuthService {
         tokenPayload.setExpiresIn(tokenProvider.getExpirationMinutes(jwt));
         response.setUserData(user);
         response.setTokenPayload(tokenPayload);
+        response.setServiceProviderUuid(serviceProviderUuid);
         log.info("Returning user information");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

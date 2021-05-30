@@ -161,9 +161,8 @@ public class ServiceTransactions {
         serviceAppointment.setServiceDeliveredOn(new Date());
         serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
         serviceAppointment.setUuid(UuidGenerator.generateRandomString(12));
-        serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
         ServiceAppointment serviceAppointment1 = serviceAppointmentRepository.save(serviceAppointment);
-        AppointmentEvent appointmentEvent =  new AppointmentEvent(serviceAppointment.getUuid());
+        AppointmentEvent appointmentEvent =  new AppointmentEvent(serviceAppointment1.getUuid());
         eventPublisher.publishEvent(appointmentEvent);
         log.info("Accepted Offer " + serviceDeliveryOfferUuid);
         return new ResponseEntity<>(serviceAppointment1, HttpStatus.OK);
@@ -235,16 +234,17 @@ public class ServiceTransactions {
             ServiceProvider serviceProvider =  offer.getServiceProvider();
 
             ProviderRating providerRating = offer.getServiceProvider().getProvider().getProviderRating();
-            ProviderRatingDto providerRatingDto =
-                    ProviderRatingDto.builder()
-                            .avgPriceRating(providerRating.getAvgPriceRating())
-                            .avgCommunicationRating(providerRating.getAvgCommunicationRating())
-                            .avgProfessionalismRating(providerRating.getAvgProfessionalismRating())
-                            .avgProficiencyRating(providerRating.getAvgProficiencyRating())
-                            .avgPunctualityRating(providerRating.getAvgPunctualityRating())
-                            .overallRating(providerRating.getOverallRating())
-                    .build();
-
+            ProviderRatingDto providerRatingDto = null;
+            if(providerRating != null){
+                providerRatingDto=  ProviderRatingDto.builder()
+                        .avgPriceRating(providerRating.getAvgPriceRating())
+                        .avgCommunicationRating(providerRating.getAvgCommunicationRating())
+                        .avgProfessionalismRating(providerRating.getAvgProfessionalismRating())
+                        .avgProficiencyRating(providerRating.getAvgProficiencyRating())
+                        .avgPunctualityRating(providerRating.getAvgPunctualityRating())
+                        .overallRating(providerRating.getOverallRating())
+                        .build();
+           }
             ProviderDetails providerDetails =
                     ProviderDetails.builder()
                             .billingRatePerHour(serviceProvider.getBillingRatePerHour())

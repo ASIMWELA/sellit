@@ -21,6 +21,7 @@ public class AuthController {
         this.authService = authService;
     }
     @PostMapping("/login")
+    @Transactional
     public ResponseEntity<SigninResponse> login(@RequestBody @Valid SigninRequest signinRequest){
         return authService.signin(signinRequest);
     }

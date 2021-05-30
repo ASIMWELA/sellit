@@ -25,11 +25,9 @@ import java.util.Objects;
 public class ServiceDeliveryOffer extends BaseEntity {
     @Column(name="discount_in_percent", length = 50, nullable = false)
     @PositiveOrZero
-    @NotBlank(message = "discountInPercent cannot be blank")
     double discountInPercent;
     @Column(name="estimated_cost", length = 50, nullable = false)
     @PositiveOrZero
-    @NotBlank(message = "estimatedCost cannot be blank")
     double estimatedCost;
     @Column(name="offer_submission_date")
     Date offerSubmissionDate;

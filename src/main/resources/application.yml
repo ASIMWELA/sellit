@@ -27,15 +27,13 @@ spring:
     hibernate:
       ddl-auto: create
     open-in-view:  false
-
-
   jackson:
     serialization:
       fail-on-empty-beans: false
   mail:
     host: smtp.gmail.com
-    username: "${MAIL_USERNAME}"
-    password: "${MAIL_PASSWORD}"
+    username: "${env.MAIL_USERNAME}"
+    password: "${env.MAIL_PASSWORD}"
     protocol: smtp
     port: 587
     test-connection: false

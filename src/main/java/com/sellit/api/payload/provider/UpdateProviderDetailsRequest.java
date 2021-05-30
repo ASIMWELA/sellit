@@ -19,5 +19,6 @@ public class UpdateProviderDetailsRequest {
     @NotEmpty(message = "Office address cannot be empty")
     String officeAddress;
     @Size(min=50,max= 800, message = "providerDescription should be between 50 and 800 words")
+    @NotEmpty(message = "providerDescription cannot be empty")
     String providerDescription;
 }

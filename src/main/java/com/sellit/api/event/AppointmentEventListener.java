@@ -8,13 +8,17 @@ import com.sellit.api.exception.EntityNotFoundException;
 import com.sellit.api.repository.ServiceAppointmentRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Component
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Slf4j
 public class AppointmentEventListener implements ApplicationListener<AppointmentEvent> {
 
     @Value("${app.APP_NAME}")
@@ -22,8 +26,7 @@ public class AppointmentEventListener implements ApplicationListener<Appointment
     JavaMailSender javaMailSender;
     ServiceAppointmentRepository serviceAppointmentRepository;
 
-    public AppointmentEventListener(String appName, JavaMailSender javaMailSender, ServiceAppointmentRepository serviceAppointmentRepository) {
-        this.appName = appName;
+    public AppointmentEventListener( JavaMailSender javaMailSender, ServiceAppointmentRepository serviceAppointmentRepository) {
         this.javaMailSender = javaMailSender;
         this.serviceAppointmentRepository = serviceAppointmentRepository;
     }
@@ -43,12 +46,14 @@ public class AppointmentEventListener implements ApplicationListener<Appointment
                user.getFirstName() + "  " + user.getLastName() + " on "+ "\n"+
                appointment.getServiceStartTime()+" \n\nCUSTOMER CONTACT DETAILS\n"+
                "Email : "+ user.getEmail() +"\nMobile number : "+ user.getMobileNumber()+"\n\n"+
-               "ADDRESS\n\n City : " + address.getCity()+" \n   Street : " + address.getStreet()+"\n    "+
-               "Region : "+ address.getRegion()+"\n     "+"General Location desc : "+address.getLocationDescription();
+               "ADDRESS\nCity : " + address.getCity()+" \nStreet : " + address.getStreet()+"\n"+
+               "Region : "+ address.getRegion()+"\n"+"General Location desc : "+address.getLocationDescription();
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
         simpleMailMessage.setFrom(appName);
         simpleMailMessage.setTo(providerEmail);
         simpleMailMessage.setSubject("Appointment Details of : \n"+ request.getRequirementDescription()+" Request");
         simpleMailMessage.setText(message);
+        log.info("Sending email to "+providerEmail);
+        javaMailSender.send(simpleMailMessage);
     }
 }
