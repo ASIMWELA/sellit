@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class AppointmentEventListener implements ApplicationListener<AppointmentEvent> {
 
+    //renamed
     @Value("${app.name}")
     String appName;
     JavaMailSender javaMailSender;
