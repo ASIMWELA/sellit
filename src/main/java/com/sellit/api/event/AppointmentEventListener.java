@@ -22,9 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AppointmentEventListener implements ApplicationListener<AppointmentEvent> {
 
     //renamed
-    @Value("${app.name}")
-    String appName;
-    JavaMailSender javaMailSender;
+
+    final JavaMailSender javaMailSender;
     ServiceAppointmentRepository serviceAppointmentRepository;
 
     public AppointmentEventListener( JavaMailSender javaMailSender, ServiceAppointmentRepository serviceAppointmentRepository) {
@@ -50,6 +49,7 @@ public class AppointmentEventListener implements ApplicationListener<Appointment
                "ADDRESS\nCity : " + address.getCity()+" \nStreet : " + address.getStreet()+"\n"+
                "Region : "+ address.getRegion()+"\n"+"General Location desc : "+address.getLocationDescription();
         SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+        String appName = "sell-services";
         simpleMailMessage.setFrom(appName);
         simpleMailMessage.setTo(providerEmail);
         simpleMailMessage.setSubject("Appointment Details of : \n"+ request.getRequirementDescription()+" Request");

@@ -1,5 +1,4 @@
 app:
-  name: "${env.APP_NAME}"
   jwt:
     secrete: "${env.JWT_SECRETE}"
     expiration: "${env.JWT_EXPIRATION_M_SECONDS}"
