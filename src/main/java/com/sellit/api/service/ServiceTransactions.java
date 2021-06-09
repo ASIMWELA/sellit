@@ -369,4 +369,16 @@ public class ServiceTransactions {
         log.info("Returned service categories requests");
         return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
     }
+
+    public ResponseEntity<JsonResponse> getServiceRequests(String customerUuid){
+        log.info("Get service requests for {}", customerUuid);
+        User customer = userRepository.findByUuid(customerUuid).orElseThrow(
+                ()->new EntityNotFoundException("No customer with the provided identifier")
+        );
+        List<ServiceRequest> requests = customer.getServiceRequests();
+        log.info("Returned service requests for customer {}", customer.getUuid());
+        return new ResponseEntity<>(JsonResponse.builder().data(requests).build(), HttpStatus.OK);
+    }
+
+
 }

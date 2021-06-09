@@ -4,7 +4,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 
 
 @NoArgsConstructor

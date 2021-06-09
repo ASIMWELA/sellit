@@ -73,7 +73,10 @@ public class ServiceTransactionsController {
     public ResponseEntity<PagedResponse> getServiceRequests(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
         return serviceTransactions.getServiceRequests(pageNo, pageSize);
     }
-
+    @GetMapping("/requests/{customerUuid}")
+    public ResponseEntity<JsonResponse> getServiceRequests(@PathVariable String customerUuid){
+        return serviceTransactions.getServiceRequests(customerUuid);
+    }
     @GetMapping("/requests/{requestUuid}/offers")
     public ResponseEntity<JsonResponse> getRequestOffers(@PathVariable @NonNull String requestUuid){
         return serviceTransactions.getOffersForARequest(requestUuid);
