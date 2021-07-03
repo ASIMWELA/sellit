@@ -49,7 +49,7 @@ public class AuthService {
                 ()->new EntityNotFoundException("Wrong credentials")
         );
         String serviceProviderUuid = null;
-        if(user.isAProvider()){
+        if(user.isAProvider() && user.getProviderDetails().getServices().size()>0){
             serviceProviderUuid = user.getProviderDetails().getServices().get(0).getUuid();
         }
         SigninResponse response = new SigninResponse();

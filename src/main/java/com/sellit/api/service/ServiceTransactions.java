@@ -277,9 +277,9 @@ public class ServiceTransactions {
            if(serviceDeliveryOffers.size()>0){
                serviceDeliveryOffers.forEach(offer->{
                    if(offer.getServiceAppointments() != null){
-
                        Provider provider = offer.getServiceProvider().getProvider();
                        ServiceAppointment appointment = offer.getServiceAppointments();
+                       //TODO: filter the unexpired appointments
                        User user1 = offer.getServiceProvider().getProvider().getUser();
                        ServiceProvider serviceProvider = offer.getServiceProvider();
                        UserDetailsDto userDetailsDto =
