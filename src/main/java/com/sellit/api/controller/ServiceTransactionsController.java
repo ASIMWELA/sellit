@@ -91,4 +91,10 @@ public class ServiceTransactionsController {
     public ResponseEntity<JsonResponse> getProviderReviewLogs(@PathVariable String serviceProviderUuid){
         return serviceTransactions.getProviderReviewLogs(serviceProviderUuid);
     }
+
+    @GetMapping("/{providerUuid}")
+    @Transactional
+    public ResponseEntity<JsonResponse> getProviderServices(@PathVariable @NonNull String providerUuid){
+        return serviceTransactions.getProviderServices(providerUuid);
+    }
 }

@@ -380,5 +380,20 @@ public class ServiceTransactions {
         return new ResponseEntity<>(JsonResponse.builder().data(requests).build(), HttpStatus.OK);
     }
 
+    public ResponseEntity<JsonResponse> getProviderServices(String providerUuid){
+
+        Provider provider = providerRepository.findByUuid(providerUuid).orElseThrow(
+                ()->new EntityNotFoundException("No provider with the provider identifier")
+        );
+        List<com.sellit.api.Entity.Service> providerServices = new ArrayList<>();
+        if(provider.getServices().size()>0){
+            provider.getServices().forEach(serviceProvider->{
+                providerServices.add(serviceProvider.getService());
+            });
+        }
+        JsonResponse jsonResponse = JsonResponse.builder().data(providerServices).build();
+        return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
+    }
+
 
 }
