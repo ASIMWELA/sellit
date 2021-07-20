@@ -385,10 +385,19 @@ public class ServiceTransactions {
         Provider provider = providerRepository.findByUuid(providerUuid).orElseThrow(
                 ()->new EntityNotFoundException("No provider with the provider identifier")
         );
-        List<com.sellit.api.Entity.Service> providerServices = new ArrayList<>();
+        List<ProviderServicesDto> providerServices = new ArrayList<>();
         if(provider.getServices().size()>0){
             provider.getServices().forEach(serviceProvider->{
-                providerServices.add(serviceProvider.getService());
+                com.sellit.api.Entity.Service s =  serviceProvider.getService();
+                ServiceCategory category = s.getServiceCategory();
+
+                ProviderServicesDto providerServicesDto = ProviderServicesDto.builder()
+                        .serviceName( s.getServiceName())
+                        .serviceCategoryName(category.getServiceCategoryName())
+                        .serviceCategoryUuid(category.getUuid())
+                        .serviceUuid(s.getUuid())
+                        .build();
+                providerServices.add(providerServicesDto);
             });
         }
         JsonResponse jsonResponse = JsonResponse.builder().data(providerServices).build();
