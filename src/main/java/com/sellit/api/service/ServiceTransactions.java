@@ -396,6 +396,8 @@ public class ServiceTransactions {
                         .serviceCategoryName(category.getServiceCategoryName())
                         .serviceCategoryUuid(category.getUuid())
                         .serviceUuid(s.getUuid())
+                        .billingRatePerHour(serviceProvider.getBillingRatePerHour())
+                        .experienceInMonths(serviceProvider.getExperienceInMonths())
                         .build();
                 providerServices.add(providerServicesDto);
             });

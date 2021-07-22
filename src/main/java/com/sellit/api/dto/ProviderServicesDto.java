@@ -9,5 +9,10 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProviderServicesDto {
-    String serviceName, serviceUuid, serviceCategoryName, serviceCategoryUuid;
+    String serviceName,
+            serviceUuid,
+            serviceCategoryName,
+            serviceCategoryUuid,
+    double billingRatePerHour;
+    int experienceInMonths;
 }
