@@ -12,7 +12,7 @@ public class ProviderServicesDto {
     String serviceName,
             serviceUuid,
             serviceCategoryName,
-            serviceCategoryUuid,
+            serviceCategoryUuid;
     double billingRatePerHour;
     int experienceInMonths;
 }
