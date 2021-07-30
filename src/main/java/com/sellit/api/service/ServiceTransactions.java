@@ -109,7 +109,16 @@ public class ServiceTransactions {
             pageMetadata.setNextPage(baseUrl+"/api/v1/services?pageNo="+(services.getNumber()-1)+ "&pageSize="+services.getSize());
         }
         PagedResponse response = new PagedResponse();
-        response.setData(services.getContent());
+        List<ServicesDto> servicesDtoList = new ArrayList<>();
+        services.getContent().forEach(service->{
+            ServicesDto servicesDto = ServicesDto.builder()
+                    .serviceName(service.getServiceName())
+                    .uuid(service.getUuid())
+                    .categoryName(service.getServiceCategory().getServiceCategoryName())
+                    .build();
+            servicesDtoList.add(servicesDto);
+        });
+        response.setData(servicesDtoList);
         response.setPageMetadata(pageMetadata);
         log.info("Returned services information");
         return new ResponseEntity<>(response,HttpStatus.OK );
@@ -390,7 +399,6 @@ public class ServiceTransactions {
             provider.getServices().forEach(serviceProvider->{
                 com.sellit.api.Entity.Service s =  serviceProvider.getService();
                 ServiceCategory category = s.getServiceCategory();
-
                 ProviderServicesDto providerServicesDto = ProviderServicesDto.builder()
                         .serviceName( s.getServiceName())
                         .serviceCategoryName(category.getServiceCategoryName())

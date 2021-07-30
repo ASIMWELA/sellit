@@ -51,6 +51,4 @@ public class ProviderReviewLog  extends BaseEntity {
     @JoinColumn(name="service_appointment_id")
     @JsonIgnore
     ServiceAppointment serviceAppointment;
-
-
 }
