@@ -46,9 +46,9 @@ public class JwtTokenProvider implements Serializable
        Date now = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getIssuedAt();
 
        Long diff = then.getTime()-now.getTime();
-       long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+       long days = TimeUnit.MILLISECONDS.toDays(diff);
 
-       return minutes + " minutes";
+       return days + " minutes";
 
     }
 
