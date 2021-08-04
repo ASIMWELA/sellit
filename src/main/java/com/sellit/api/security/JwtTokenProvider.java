@@ -21,7 +21,7 @@ public class JwtTokenProvider implements Serializable
     private String jwtSecret;
 
     @Value("${app.jwt.expiration}")
-    private int jwtExpirationMs;
+    private long jwtExpirationMs;
 
     public String generateJwtToken(Authentication authentication)
     {
