@@ -1,5 +1,6 @@
 package com.sellit.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -36,5 +37,6 @@ public class Provider extends BaseEntity{
     @OneToMany(mappedBy = "provider", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     @LazyCollection(LazyCollectionOption.TRUE)
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @JsonIgnore
     List<ServiceProvider> services;
 }

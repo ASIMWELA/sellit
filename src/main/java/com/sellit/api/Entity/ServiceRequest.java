@@ -32,6 +32,8 @@ public class ServiceRequest extends BaseEntity {
     Date requiredOn;
     @Column(name="expected_start_time", nullable = false)
     @NonNull
+
+    //TODO: change it to string datatype in the schema model
     Date expectedStartTime;
     @Column(name="expected_tentative_effort_required_in_hours", length = 100, nullable = false)
     Long expectedTentativeEffortRequiredInHours;
