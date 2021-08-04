@@ -56,6 +56,7 @@ public class User extends BaseEntity{
     List<Role> roles ;
     @OneToMany(mappedBy = "user")
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<ServiceRequest> serviceRequests;
 }
