@@ -48,7 +48,7 @@ public class JwtTokenProvider implements Serializable
        Long diff = then.getTime()-now.getTime();
        long days = TimeUnit.MILLISECONDS.toDays(diff);
 
-       return days + " minutes";
+       return days + " days";
 
     }
 
