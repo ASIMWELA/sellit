@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -217,13 +218,16 @@ public class ServiceTransactions {
         List<ServiceRequestDto> requestDtos = new ArrayList<>();
 
         requests.getContent().forEach(request->{
+
+           Calendar c = Calendar.getInstance();
+           c.setTime(request.getRequiredOn());
             ServiceRequestDto requestDto =
                     ServiceRequestDto.builder()
                     .uuid(request.getUuid())
                     .requestDescription(request.getRequirementDescription())
                     .expectedHours(request.getExpectedTentativeEffortRequiredInHours())
                     .expectedStartTime(request.getExpectedStartTime().getHours()+":"+request.getExpectedStartTime().getMinutes())
-                    .requiredDate(request.getRequiredOn().getDay() +"-"+ request.getRequiredOn().getMonth() +"-"+ request.getRequiredOn().getYear())
+                    .requiredDate(c.get(Calendar.DAY_OF_MONTH) +"-"+c.get(Calendar.MONTH) + "-"+c.get(Calendar.YEAR))
                     .requestBy(request.getUser().getFirstName()+" "+request.getUser().getLastName())
                     .country(request.getUser().getAddress().getCountry())
                     .email(request.getUser().getEmail())
