@@ -221,13 +221,22 @@ public class ServiceTransactions {
 
            Calendar c = Calendar.getInstance();
            c.setTime(request.getRequiredOn());
-            ServiceRequestDto requestDto =
+           String dayOfMonth = c.get(Calendar.DAY_OF_MONTH)<10?"0"+c.get(Calendar.DAY_OF_MONTH) :""+c.get(Calendar.DAY_OF_MONTH);
+           String month = c.get(Calendar.MONTH)<10?"0"+c.get(Calendar.MONTH):""+c.get(Calendar.MONTH);
+
+           Calendar getTime = Calendar.getInstance();
+           getTime.setTime(request.getExpectedStartTime());
+
+           String hour = getTime.get(Calendar.HOUR_OF_DAY)<10?"0"+getTime.get(Calendar.HOUR_OF_DAY):""+getTime.get(Calendar.HOUR_OF_DAY);
+           String minutes = getTime.get(Calendar.MINUTE)<10?"0"+getTime.get(Calendar.MINUTE):""+getTime.get(Calendar.MINUTE);
+
+           ServiceRequestDto requestDto =
                     ServiceRequestDto.builder()
                     .uuid(request.getUuid())
                     .requestDescription(request.getRequirementDescription())
                     .expectedHours(request.getExpectedTentativeEffortRequiredInHours())
-                    .expectedStartTime(request.getExpectedStartTime().getHours()+":"+request.getExpectedStartTime().getMinutes())
-                    .requiredDate(c.get(Calendar.DAY_OF_MONTH) +"-"+c.get(Calendar.MONTH) + "-"+c.get(Calendar.YEAR))
+                    .expectedStartTime(hour+":"+minutes)
+                    .requiredDate(dayOfMonth+"-"+ month+"-"+c.get(Calendar.YEAR))
                     .requestBy(request.getUser().getFirstName()+" "+request.getUser().getLastName())
                     .country(request.getUser().getAddress().getCountry())
                     .email(request.getUser().getEmail())
