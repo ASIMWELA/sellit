@@ -1,10 +1,12 @@
 package com.sellit.api.service;
 
 import com.sellit.api.Entity.*;
+import com.sellit.api.Enum.ERole;
 import com.sellit.api.dto.*;
 import com.sellit.api.event.AppointmentEvent;
 import com.sellit.api.exception.EntityAlreadyExistException;
 import com.sellit.api.exception.EntityNotFoundException;
+import com.sellit.api.exception.OperationNotAllowedException;
 import com.sellit.api.payload.ApiResponse;
 import com.sellit.api.payload.JsonResponse;
 import com.sellit.api.payload.PageMetadata;
@@ -132,6 +134,9 @@ public class ServiceTransactions {
         com.sellit.api.Entity.Service service = serviceRepository.findByUuid(serviceUuid).orElseThrow(
                 ()->new EntityNotFoundException("No service with the specified identifier")
         );
+        if(!(customer.getRoles().get(0).getName().name().equals(ERole.ROLE_CUSTOMER.name()))){
+            throw new OperationNotAllowedException("You not allowed to create a request");
+        }
         serviceRequest.setUuid(UuidGenerator.generateRandomString(12));
         serviceRequest.setUser(customer);
         serviceRequest.setService(service);
@@ -208,8 +213,27 @@ public class ServiceTransactions {
         if(requests.hasPrevious()){
             pageMetadata.setNextPage(baseUrl+"/api/v1/services/requests?pageNo="+(requests.getNumber()-1)+ "&pageSize="+requests.getSize());
         }
+
+        List<ServiceRequestDto> requestDtos = new ArrayList<>();
+
+        requests.getContent().forEach(request->{
+            ServiceRequestDto requestDto =
+                    ServiceRequestDto.builder()
+                    .uuid(request.getUuid())
+                    .requestDescription(request.getRequirementDescription())
+                    .expectedHours(request.getExpectedTentativeEffortRequiredInHours())
+                    .expectedStartTime(request.getExpectedStartTime().getHours()+":"+request.getExpectedStartTime().getMinutes())
+                    .requiredDate(request.getRequiredOn().getDay() +"-"+ request.getRequiredOn().getMonth() +"-"+ request.getRequiredOn().getYear())
+                    .requestBy(request.getUser().getFirstName()+" "+request.getUser().getLastName())
+                    .country(request.getUser().getAddress().getCountry())
+                    .email(request.getUser().getEmail())
+                    .locationCity(request.getUser().getAddress().getCity())
+                    .build();
+            requestDtos.add(requestDto);
+
+        });
         PagedResponse pagedResponse = PagedResponse.builder().pageMetadata(pageMetadata)
-                .data(requests.getContent()).build();
+                .data(requestDtos).build();
         log.info("Returned service requests");
         return new ResponseEntity<>(pagedResponse, HttpStatus.OK);
     }
