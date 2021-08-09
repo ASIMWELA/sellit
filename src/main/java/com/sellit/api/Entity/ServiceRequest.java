@@ -40,6 +40,7 @@ public class ServiceRequest extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore
     User user;
     @ManyToOne
     @JoinColumn(name = "service_id")
