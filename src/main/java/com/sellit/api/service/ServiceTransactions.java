@@ -422,8 +422,30 @@ public class ServiceTransactions {
                 ()->new EntityNotFoundException("No customer with the provided identifier")
         );
         List<ServiceRequest> requests = customer.getServiceRequests();
+
+        List<CustomerRequestDto> customerRequestDtos = new ArrayList<>();
+        requests.forEach(request->{
+            Calendar c = Calendar.getInstance();
+            c.setTime(request.getRequiredOn());
+            String dayOfMonth = c.get(Calendar.DAY_OF_MONTH)<10?"0"+c.get(Calendar.DAY_OF_MONTH) :""+c.get(Calendar.DAY_OF_MONTH);
+            String month = c.get(Calendar.MONTH)<10?"0"+c.get(Calendar.MONTH):""+c.get(Calendar.MONTH);
+
+            Calendar getTime = Calendar.getInstance();
+            getTime.setTime(request.getExpectedStartTime());
+            String hour = getTime.get(Calendar.HOUR_OF_DAY)<10?"0"+getTime.get(Calendar.HOUR_OF_DAY):""+getTime.get(Calendar.HOUR_OF_DAY);
+            String minutes = getTime.get(Calendar.MINUTE)<10?"0"+getTime.get(Calendar.MINUTE):""+getTime.get(Calendar.MINUTE);
+
+            CustomerRequestDto requestDto = CustomerRequestDto.builder()
+                    .uuid(request.getUuid())
+                    .expectedHours(String.valueOf(request.getExpectedTentativeEffortRequiredInHours()))
+                    .expectedStartTime(hour+":"+minutes)
+                    .requirementDescription(request.getRequirementDescription())
+                    .requiredOn(dayOfMonth+"-"+month+"-" +c.get(Calendar.YEAR))
+                    .build();
+            customerRequestDtos.add(requestDto);
+        });
         log.info("Returned service requests for customer {}", customer.getUuid());
-        return new ResponseEntity<>(JsonResponse.builder().data(requests).build(), HttpStatus.OK);
+        return new ResponseEntity<>(JsonResponse.builder().data(customerRequestDtos).build(), HttpStatus.OK);
     }
 
     public ResponseEntity<JsonResponse> getProviderServices(String providerUuid){
