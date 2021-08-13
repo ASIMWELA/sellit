@@ -17,6 +17,13 @@ public class OfferPackage {
      String uuid;
      double  discountInPercent;
      double estimatedCost;
+     String offerBy,
+             experienceInMonths,
+             mobileNumber,
+             email,
+             location,
+             submissionDate,
+             overallRating;
      @JsonInclude(JsonInclude.Include.NON_NULL)
      Date offerSubmissionDate;
 }

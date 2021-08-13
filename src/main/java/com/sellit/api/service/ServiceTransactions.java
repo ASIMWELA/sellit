@@ -256,56 +256,40 @@ public class ServiceTransactions {
         ServiceRequest request = serviceRequestRepository.findByUuid(serviceRequestUuid).orElseThrow(()->new EntityNotFoundException("No request with the given identifier"));
         List<ServiceDeliveryOffer> offers = request.getServiceDeliveryOffers();
 
-       List<ServiceOfferDto> offerDtos = new ArrayList<>();
+       List<OfferPackage> offerDtos = new ArrayList<>();
 
         offers.forEach(offer->{
+            User user = offer.getServiceProvider().getProvider().getUser();
+            Provider provider = offer.getServiceProvider().getProvider();
+            ServiceProvider serviceProvider =  offer.getServiceProvider();
+            ProviderRating providerRating = offer.getServiceProvider().getProvider().getProviderRating();
+
+            Calendar c = Calendar.getInstance();
+            c.setTime(offer.getOfferSubmissionDate());
+
+            String submissionDate = c.get(Calendar.DAY_OF_MONTH) + "-"+c.get(Calendar.MONTH)+"-"+c.get(Calendar.YEAR);
+            String overRating;
+
+            if(providerRating != null){
+                overRating = String.valueOf(providerRating.getOverallRating());
+            }else {
+                overRating = "0.0";
+            }
+
             OfferPackage offerPackage =
                     OfferPackage.builder()
-                    .estimatedCost(offer.getEstimatedCost())
-                    .offerSubmissionDate(offer.getOfferSubmissionDate())
-                    .discountInPercent(offer.getDiscountInPercent())
-                    .uuid(offer.getUuid()).build();
-            User user = offer.getServiceProvider().getProvider().getUser();
-            UserDetailsDto userDetailsDto = null;
-            Provider provider = offer.getServiceProvider().getProvider();
-            if(user != null){
-                userDetailsDto = UserDetailsDto.builder()
-                        .firstName(user.getFirstName())
-                        .lastName(user.getLastName())
-                        .email(user.getEmail())
-                        .mobileNumber(user.getMobileNumber())
-                        .userName(user.getUserName())
-                        .build();
-            }
-            ServiceProvider serviceProvider =  offer.getServiceProvider();
-
-            ProviderRating providerRating = offer.getServiceProvider().getProvider().getProviderRating();
-            ProviderRatingDto providerRatingDto = null;
-            if(providerRating != null){
-                providerRatingDto=  ProviderRatingDto.builder()
-                        .avgPriceRating(providerRating.getAvgPriceRating())
-                        .avgCommunicationRating(providerRating.getAvgCommunicationRating())
-                        .avgProfessionalismRating(providerRating.getAvgProfessionalismRating())
-                        .avgProficiencyRating(providerRating.getAvgProficiencyRating())
-                        .avgPunctualityRating(providerRating.getAvgPunctualityRating())
-                        .overallRating(providerRating.getOverallRating())
-                        .build();
-           }
-            ProviderDetails providerDetails =
-                    ProviderDetails.builder()
-                            .billingRatePerHour(serviceProvider.getBillingRatePerHour())
-                            .experienceInMonths(serviceProvider.getExperienceInMonths())
-                            .officeAddress(provider.getOfficeAddress())
-                            .personalDetails(userDetailsDto)
-                            .providerRating(providerRatingDto)
-                            .serviceOfferingDescription(serviceProvider.getServiceOfferingDescription())
-                            .build();
-            ServiceOfferDto serviceOfferDto=
-                    ServiceOfferDto.builder()
-                            .offerPackage(offerPackage)
-                            .providerDetails(providerDetails)
-                    .build();
-            offerDtos.add(serviceOfferDto);
+                            .estimatedCost(offer.getEstimatedCost())
+                            .offerSubmissionDate(offer.getOfferSubmissionDate())
+                            .discountInPercent(offer.getDiscountInPercent())
+                            .offerBy(user.getFirstName() + " "+ user.getLastName())
+                            .experienceInMonths(String.valueOf(serviceProvider.getExperienceInMonths()))
+                            .email(user.getEmail())
+                            .mobileNumber(user.getMobileNumber())
+                            .location(provider.getOfficeAddress())
+                            .overallRating(overRating)
+                            .submissionDate(submissionDate)
+                            .uuid(offer.getUuid()).build();
+            offerDtos.add(offerPackage);
         });
 
         log.info("Returned Offers for service : {}", serviceRequestUuid);
