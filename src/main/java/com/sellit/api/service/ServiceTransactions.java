@@ -259,37 +259,39 @@ public class ServiceTransactions {
        List<OfferPackage> offerDtos = new ArrayList<>();
 
         offers.forEach(offer->{
-            User user = offer.getServiceProvider().getProvider().getUser();
-            Provider provider = offer.getServiceProvider().getProvider();
-            ServiceProvider serviceProvider =  offer.getServiceProvider();
-            ProviderRating providerRating = offer.getServiceProvider().getProvider().getProviderRating();
+            if(!offer.isOfferAccepted()){
+                User user = offer.getServiceProvider().getProvider().getUser();
+                Provider provider = offer.getServiceProvider().getProvider();
+                ServiceProvider serviceProvider =  offer.getServiceProvider();
+                ProviderRating providerRating = offer.getServiceProvider().getProvider().getProviderRating();
 
-            Calendar c = Calendar.getInstance();
-            c.setTime(offer.getOfferSubmissionDate());
+                Calendar c = Calendar.getInstance();
+                c.setTime(offer.getOfferSubmissionDate());
 
-            String submissionDate = c.get(Calendar.DAY_OF_MONTH) + "-"+c.get(Calendar.MONTH)+"-"+c.get(Calendar.YEAR);
-            String overRating;
+                String submissionDate = c.get(Calendar.DAY_OF_MONTH) + "-"+c.get(Calendar.MONTH)+"-"+c.get(Calendar.YEAR);
+                String overRating;
 
-            if(providerRating != null){
-                overRating = String.valueOf(providerRating.getOverallRating());
-            }else {
-                overRating = "0.0";
+                if(providerRating != null){
+                    overRating = String.valueOf(providerRating.getOverallRating());
+                }else {
+                    overRating = "0.0";
+                }
+                OfferPackage offerPackage =
+                        OfferPackage.builder()
+                                .estimatedCost(offer.getEstimatedCost())
+                                .offerSubmissionDate(offer.getOfferSubmissionDate())
+                                .discountInPercent(offer.getDiscountInPercent())
+                                .offerBy(user.getFirstName() + " "+ user.getLastName())
+                                .experienceInMonths(String.valueOf(serviceProvider.getExperienceInMonths()))
+                                .email(user.getEmail())
+                                .mobileNumber(user.getMobileNumber())
+                                .location(provider.getOfficeAddress())
+                                .overallRating(overRating)
+                                .submissionDate(submissionDate)
+                                .uuid(offer.getUuid()).build();
+                offerDtos.add(offerPackage);
             }
 
-            OfferPackage offerPackage =
-                    OfferPackage.builder()
-                            .estimatedCost(offer.getEstimatedCost())
-                            .offerSubmissionDate(offer.getOfferSubmissionDate())
-                            .discountInPercent(offer.getDiscountInPercent())
-                            .offerBy(user.getFirstName() + " "+ user.getLastName())
-                            .experienceInMonths(String.valueOf(serviceProvider.getExperienceInMonths()))
-                            .email(user.getEmail())
-                            .mobileNumber(user.getMobileNumber())
-                            .location(provider.getOfficeAddress())
-                            .overallRating(overRating)
-                            .submissionDate(submissionDate)
-                            .uuid(offer.getUuid()).build();
-            offerDtos.add(offerPackage);
         });
 
         log.info("Returned Offers for service : {}", serviceRequestUuid);
