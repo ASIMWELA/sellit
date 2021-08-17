@@ -61,7 +61,7 @@ public class ServiceTransactionsController {
     @Secured("ROLE_CUSTOMER")
     @PostMapping("/{serviceDeliveryOfferUuid}/complete-offer")
     @Transactional
-    public ResponseEntity<ServiceAppointment> acceptServiceOffer(@NonNull @PathVariable String serviceDeliveryOfferUuid, @RequestBody @Valid ServiceAppointment serviceAppointment){
+    public ResponseEntity<ApiResponse> acceptServiceOffer(@NonNull @PathVariable String serviceDeliveryOfferUuid, @RequestBody @Valid ServiceAppointment serviceAppointment){
         return serviceTransactions.acceptServiceOffer(serviceDeliveryOfferUuid, serviceAppointment);
     }
 

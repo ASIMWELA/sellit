@@ -167,7 +167,7 @@ public class ServiceTransactions {
        return new ResponseEntity<>(new ApiResponse(true, "offer placed"),HttpStatus.OK);
     }
 
-    public ResponseEntity<ServiceAppointment> acceptServiceOffer(String serviceDeliveryOfferUuid, ServiceAppointment serviceAppointment){
+    public ResponseEntity<ApiResponse> acceptServiceOffer(String serviceDeliveryOfferUuid, ServiceAppointment serviceAppointment){
         log.info("Accepting " +serviceDeliveryOfferUuid +" offer");
         ServiceDeliveryOffer serviceDeliveryOffer = serviceDeliveryOfferRepository.findByUuid(serviceDeliveryOfferUuid).orElseThrow(
                 ()->new EntityNotFoundException("No service delivery offer with the given identifier"));
@@ -180,7 +180,7 @@ public class ServiceTransactions {
         AppointmentEvent appointmentEvent =  new AppointmentEvent(serviceAppointment1.getUuid());
         eventPublisher.publishEvent(appointmentEvent);
         log.info("Accepted Offer " + serviceDeliveryOfferUuid);
-        return new ResponseEntity<>(serviceAppointment1, HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse(true, "Appointment created successfully"), HttpStatus.OK);
     }
 
     public ResponseEntity<JsonResponse> getServiceProviders(String serviceUuid){
@@ -302,6 +302,8 @@ public class ServiceTransactions {
         User user = userRepository.findByUuid(userUuid).orElseThrow(
                 ()->new EntityNotFoundException("No user with the identifier provided")
         );
+
+//        user.getProviderDetails().getServices().get(0).getServiceDeliveryOffers().get(0).getServiceAppointments().
         List<ServiceRequest> serviceRequest = user.getServiceRequests();
         List<UserAppointmentDto> serviceAppointments= new ArrayList<>();
         if(serviceRequest.size()>0){
