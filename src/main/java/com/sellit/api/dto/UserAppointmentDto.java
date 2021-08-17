@@ -12,11 +12,11 @@ import java.util.Date;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserAppointmentDto {
-     @JsonInclude(JsonInclude.Include.NON_NULL)
-     String uuid;
-     @JsonInclude(JsonInclude.Include.NON_NULL)
-     Date serviceDeliveredOn,
-             serviceStartTime,
-             serviceEndTime;
-     AppointmentDetails appointmentDetails;
+ String appointmentDate,
+         appointmentStartTime,
+         appointmentEndTime,
+         appointmentDesc,
+         appointmentWith,
+         providerPhone,
+         providerEmail;
 }

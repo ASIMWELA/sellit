@@ -25,6 +25,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -220,10 +222,10 @@ public class ServiceTransactions {
 
         requests.getContent().forEach(request->{
 
-           Calendar c = Calendar.getInstance();
-           c.setTime(request.getRequiredOn());
-           String dayOfMonth = c.get(Calendar.DAY_OF_MONTH)<10?"0"+c.get(Calendar.DAY_OF_MONTH) :""+c.get(Calendar.DAY_OF_MONTH);
-           String month = c.get(Calendar.MONTH)<10?"0"+c.get(Calendar.MONTH):""+c.get(Calendar.MONTH);
+           Calendar calendar = Calendar.getInstance();
+           calendar.setTime(request.getRequiredOn());
+           String dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)<10?"0"+calendar.get(Calendar.DAY_OF_MONTH) :""+calendar.get(Calendar.DAY_OF_MONTH);
+           String month = calendar.get(Calendar.MONTH)<10?"0"+calendar.get(Calendar.MONTH):""+calendar.get(Calendar.MONTH);
 
            Calendar getTime = Calendar.getInstance();
            getTime.setTime(request.getExpectedStartTime());
@@ -237,7 +239,7 @@ public class ServiceTransactions {
                     .requestDescription(request.getRequirementDescription())
                     .expectedHours(request.getExpectedTentativeEffortRequiredInHours())
                     .expectedStartTime(hour+":"+minutes)
-                    .requiredDate(dayOfMonth+"-"+ month+"-"+c.get(Calendar.YEAR))
+                    .requiredDate(dayOfMonth+"-"+ month+"-"+calendar.get(Calendar.YEAR))
                     .requestBy(request.getUser().getFirstName()+" "+request.getUser().getLastName())
                     .country(request.getUser().getAddress().getCountry())
                     .email(request.getUser().getEmail())
@@ -303,66 +305,48 @@ public class ServiceTransactions {
         User user = userRepository.findByUuid(userUuid).orElseThrow(
                 ()->new EntityNotFoundException("No user with the identifier provided")
         );
-
-//        user.getProviderDetails().getServices().get(0).getServiceDeliveryOffers().get(0).getServiceAppointments().
         List<ServiceRequest> serviceRequest = user.getServiceRequests();
-        List<ServiceAppointment> serviceAppointments= new ArrayList<>();
+        List<UserAppointmentDto> serviceAppointments= new ArrayList<>();
         if(serviceRequest.size()>0){
             serviceRequest.forEach(request->{
                 request.getServiceDeliveryOffers().forEach(offer->{
                     if(offer.getServiceAppointments() != null){
-                        serviceAppointments.add(offer.getServiceAppointments());
-                    }
+                        if(offer.getServiceAppointments().getServiceDeliveredOn().after(new Date())){
+                            ServiceAppointment appointment = offer.getServiceAppointments();
+                            SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+                            String appointmentDate = formatter.format(offer.getOfferSubmissionDate());
+                            User u = offer.getServiceProvider().getProvider().getUser();
 
+                            //get start time
+                            Calendar getStartTime = Calendar.getInstance();
+                            getStartTime.setTime(appointment.getServiceStartTime());
+                            String hour = getStartTime.get(Calendar.HOUR_OF_DAY)<10?"0"+getStartTime.get(Calendar.HOUR_OF_DAY):""+getStartTime.get(Calendar.HOUR_OF_DAY);
+                            String minutes = getStartTime.get(Calendar.MINUTE)<10?"0"+getStartTime.get(Calendar.MINUTE):""+getStartTime.get(Calendar.MINUTE);
+                            String startTime = hour + " : " + minutes;
+
+                            //get end time
+                            Calendar getEndTime = Calendar.getInstance();
+                            getStartTime.setTime(appointment.getServiceEndTime());
+                            String endHour = getStartTime.get(Calendar.HOUR_OF_DAY)<10?"0"+getStartTime.get(Calendar.HOUR_OF_DAY):""+getStartTime.get(Calendar.HOUR_OF_DAY);
+                            String endMinutes = getStartTime.get(Calendar.MINUTE)<10?"0"+getStartTime.get(Calendar.MINUTE):""+getStartTime.get(Calendar.MINUTE);
+                            String endTime = endHour + " : " + endMinutes;
+
+                            UserAppointmentDto appointmentDto =
+                                    UserAppointmentDto.builder()
+                                            .appointmentDate(appointmentDate)
+                                            .appointmentDesc(appointment.getAppointmentDescription())
+                                            .appointmentWith(u.getFirstName() + " "+ u.getLastName())
+                                            .appointmentStartTime(startTime)
+                                            .providerEmail(u.getEmail())
+                                            .appointmentEndTime(endTime)
+                                            .providerPhone(u.getMobileNumber())
+                                            .build();
+                            serviceAppointments.add(appointmentDto);
+
+                        }
+                    }
                 });
             });
-          // List<ServiceDeliveryOffer> serviceDeliveryOffers = serviceRequest.get(0).getServiceDeliveryOffers();
-//           if(serviceDeliveryOffers.size()>0){
-//               serviceDeliveryOffers.forEach(offer->{
-//                   if(offer.getServiceAppointments() != null){
-//                       Provider provider = offer.getServiceProvider().getProvider();
-//                       ServiceAppointment appointment = offer.getServiceAppointments();
-//                       //TODO: filter the unexpired appointments
-//                       User user1 = offer.getServiceProvider().getProvider().getUser();
-//                       ServiceProvider serviceProvider = offer.getServiceProvider();
-//                       UserDetailsDto userDetailsDto =
-//                               UserDetailsDto.builder()
-//                                    .userName(user1.getUserName())
-//                                    .email(user1.getEmail())
-//                                    .mobileNumber(user1.getMobileNumber())
-//                                .build();
-//                       OfferPackage offerPackage =
-//                               OfferPackage.builder()
-//                                       .discountInPercent(offer.getDiscountInPercent())
-//                                       .estimatedCost(offer.getEstimatedCost())
-//                                       .offerSubmissionDate(offer.getOfferSubmissionDate())
-//                               .build();
-//                       ProviderDetails providerDetails =
-//                               ProviderDetails.builder()
-//                               .personalDetails(userDetailsDto)
-//                               .billingRatePerHour(serviceProvider.getBillingRatePerHour())
-//                               .serviceOfferingDescription(serviceProvider.getServiceOfferingDescription())
-//                               .experienceInMonths(serviceProvider.getExperienceInMonths())
-//                               .officeAddress(provider.getOfficeAddress())
-//                               .build();
-//                       AppointmentDetails appointmentDetails =
-//                               AppointmentDetails.builder()
-//                               .providerDetails(providerDetails)
-//                               .offerPackage(offerPackage)
-//                               .build();
-//
-//                       UserAppointmentDto userAppointmentDto =
-//                               UserAppointmentDto.builder()
-//                                       .serviceDeliveredOn(appointment.getServiceDeliveredOn())
-//                                       .serviceEndTime(appointment.getServiceEndTime())
-//                                       .serviceStartTime(appointment.getServiceStartTime())
-//                                       .uuid(appointment.getUuid())
-//                                       .appointmentDetails(appointmentDetails)
-//                                       .build();
-//                       serviceAppointments.add(userAppointmentDto);
-//                   }
-//               });
-//           }
         }
             return new ResponseEntity<>(JsonResponse.builder().data(serviceAppointments).build(), HttpStatus.OK);
     }
