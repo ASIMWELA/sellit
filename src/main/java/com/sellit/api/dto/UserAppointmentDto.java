@@ -12,7 +12,8 @@ import java.util.Date;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserAppointmentDto {
- String appointmentDate,
+ String uuid,
+         appointmentDate,
          appointmentStartTime,
          appointmentEndTime,
          appointmentDesc,

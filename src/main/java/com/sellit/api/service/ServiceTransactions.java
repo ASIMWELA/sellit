@@ -321,17 +321,18 @@ public class ServiceTransactions {
                             getStartTime.setTime(appointment.getServiceStartTime());
                             String hour = getStartTime.get(Calendar.HOUR_OF_DAY)<10?"0"+getStartTime.get(Calendar.HOUR_OF_DAY):""+getStartTime.get(Calendar.HOUR_OF_DAY);
                             String minutes = getStartTime.get(Calendar.MINUTE)<10?"0"+getStartTime.get(Calendar.MINUTE):""+getStartTime.get(Calendar.MINUTE);
-                            String startTime = hour + " : " + minutes;
+                            String startTime = hour + ":" + minutes;
 
                             //get end time
                             Calendar getEndTime = Calendar.getInstance();
                             getStartTime.setTime(appointment.getServiceEndTime());
                             String endHour = getStartTime.get(Calendar.HOUR_OF_DAY)<10?"0"+getStartTime.get(Calendar.HOUR_OF_DAY):""+getStartTime.get(Calendar.HOUR_OF_DAY);
                             String endMinutes = getStartTime.get(Calendar.MINUTE)<10?"0"+getStartTime.get(Calendar.MINUTE):""+getStartTime.get(Calendar.MINUTE);
-                            String endTime = endHour + " : " + endMinutes;
+                            String endTime = endHour + ":" + endMinutes;
 
                             UserAppointmentDto appointmentDto =
                                     UserAppointmentDto.builder()
+                                            .uuid(appointment.getUuid())
                                             .appointmentDate(appointmentDate)
                                             .appointmentDesc(appointment.getAppointmentDescription())
                                             .appointmentWith(u.getFirstName() + " "+ u.getLastName())
