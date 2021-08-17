@@ -306,55 +306,63 @@ public class ServiceTransactions {
 
 //        user.getProviderDetails().getServices().get(0).getServiceDeliveryOffers().get(0).getServiceAppointments().
         List<ServiceRequest> serviceRequest = user.getServiceRequests();
-        List<UserAppointmentDto> serviceAppointments= new ArrayList<>();
+        List<ServiceAppointment> serviceAppointments= new ArrayList<>();
         if(serviceRequest.size()>0){
-           List<ServiceDeliveryOffer> serviceDeliveryOffers = serviceRequest.get(0).getServiceDeliveryOffers();
-           if(serviceDeliveryOffers.size()>0){
-               serviceDeliveryOffers.forEach(offer->{
-                   if(offer.getServiceAppointments() != null){
-                       Provider provider = offer.getServiceProvider().getProvider();
-                       ServiceAppointment appointment = offer.getServiceAppointments();
-                       //TODO: filter the unexpired appointments
-                       User user1 = offer.getServiceProvider().getProvider().getUser();
-                       ServiceProvider serviceProvider = offer.getServiceProvider();
-                       UserDetailsDto userDetailsDto =
-                               UserDetailsDto.builder()
-                                    .userName(user1.getUserName())
-                                    .email(user1.getEmail())
-                                    .mobileNumber(user1.getMobileNumber())
-                                .build();
-                       OfferPackage offerPackage =
-                               OfferPackage.builder()
-                                       .discountInPercent(offer.getDiscountInPercent())
-                                       .estimatedCost(offer.getEstimatedCost())
-                                       .offerSubmissionDate(offer.getOfferSubmissionDate())
-                               .build();
-                       ProviderDetails providerDetails =
-                               ProviderDetails.builder()
-                               .personalDetails(userDetailsDto)
-                               .billingRatePerHour(serviceProvider.getBillingRatePerHour())
-                               .serviceOfferingDescription(serviceProvider.getServiceOfferingDescription())
-                               .experienceInMonths(serviceProvider.getExperienceInMonths())
-                               .officeAddress(provider.getOfficeAddress())
-                               .build();
-                       AppointmentDetails appointmentDetails =
-                               AppointmentDetails.builder()
-                               .providerDetails(providerDetails)
-                               .offerPackage(offerPackage)
-                               .build();
+            serviceRequest.forEach(request->{
+                request.getServiceDeliveryOffers().forEach(offer->{
+                    if(offer.getServiceAppointments() != null){
+                        serviceAppointments.add(offer.getServiceAppointments());
+                    }
 
-                       UserAppointmentDto userAppointmentDto =
-                               UserAppointmentDto.builder()
-                                       .serviceDeliveredOn(appointment.getServiceDeliveredOn())
-                                       .serviceEndTime(appointment.getServiceEndTime())
-                                       .serviceStartTime(appointment.getServiceStartTime())
-                                       .uuid(appointment.getUuid())
-                                       .appointmentDetails(appointmentDetails)
-                                       .build();
-                       serviceAppointments.add(userAppointmentDto);
-                   }
-               });
-           }
+                });
+            });
+          // List<ServiceDeliveryOffer> serviceDeliveryOffers = serviceRequest.get(0).getServiceDeliveryOffers();
+//           if(serviceDeliveryOffers.size()>0){
+//               serviceDeliveryOffers.forEach(offer->{
+//                   if(offer.getServiceAppointments() != null){
+//                       Provider provider = offer.getServiceProvider().getProvider();
+//                       ServiceAppointment appointment = offer.getServiceAppointments();
+//                       //TODO: filter the unexpired appointments
+//                       User user1 = offer.getServiceProvider().getProvider().getUser();
+//                       ServiceProvider serviceProvider = offer.getServiceProvider();
+//                       UserDetailsDto userDetailsDto =
+//                               UserDetailsDto.builder()
+//                                    .userName(user1.getUserName())
+//                                    .email(user1.getEmail())
+//                                    .mobileNumber(user1.getMobileNumber())
+//                                .build();
+//                       OfferPackage offerPackage =
+//                               OfferPackage.builder()
+//                                       .discountInPercent(offer.getDiscountInPercent())
+//                                       .estimatedCost(offer.getEstimatedCost())
+//                                       .offerSubmissionDate(offer.getOfferSubmissionDate())
+//                               .build();
+//                       ProviderDetails providerDetails =
+//                               ProviderDetails.builder()
+//                               .personalDetails(userDetailsDto)
+//                               .billingRatePerHour(serviceProvider.getBillingRatePerHour())
+//                               .serviceOfferingDescription(serviceProvider.getServiceOfferingDescription())
+//                               .experienceInMonths(serviceProvider.getExperienceInMonths())
+//                               .officeAddress(provider.getOfficeAddress())
+//                               .build();
+//                       AppointmentDetails appointmentDetails =
+//                               AppointmentDetails.builder()
+//                               .providerDetails(providerDetails)
+//                               .offerPackage(offerPackage)
+//                               .build();
+//
+//                       UserAppointmentDto userAppointmentDto =
+//                               UserAppointmentDto.builder()
+//                                       .serviceDeliveredOn(appointment.getServiceDeliveredOn())
+//                                       .serviceEndTime(appointment.getServiceEndTime())
+//                                       .serviceStartTime(appointment.getServiceStartTime())
+//                                       .uuid(appointment.getUuid())
+//                                       .appointmentDetails(appointmentDetails)
+//                                       .build();
+//                       serviceAppointments.add(userAppointmentDto);
+//                   }
+//               });
+//           }
         }
             return new ResponseEntity<>(JsonResponse.builder().data(serviceAppointments).build(), HttpStatus.OK);
     }
