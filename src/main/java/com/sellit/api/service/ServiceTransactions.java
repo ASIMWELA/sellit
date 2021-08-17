@@ -311,7 +311,6 @@ public class ServiceTransactions {
             serviceRequest.forEach(request->{
                 request.getServiceDeliveryOffers().forEach(offer->{
                     if(offer.getServiceAppointments() != null){
-                        if(offer.getServiceAppointments().getServiceDeliveredOn().after(new Date())){
                             ServiceAppointment appointment = offer.getServiceAppointments();
                             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
                             String appointmentDate = formatter.format(offer.getOfferSubmissionDate());
@@ -343,7 +342,7 @@ public class ServiceTransactions {
                                             .build();
                             serviceAppointments.add(appointmentDto);
 
-                        }
+
                     }
                 });
             });
