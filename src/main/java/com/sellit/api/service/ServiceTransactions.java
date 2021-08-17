@@ -177,6 +177,7 @@ public class ServiceTransactions {
         serviceAppointment.setServiceDeliveryOffer(serviceDeliveryOffer);
         serviceAppointment.setUuid(UuidGenerator.generateRandomString(12));
         ServiceAppointment serviceAppointment1 = serviceAppointmentRepository.save(serviceAppointment);
+        serviceDeliveryOfferRepository.save(serviceDeliveryOffer);
         AppointmentEvent appointmentEvent =  new AppointmentEvent(serviceAppointment1.getUuid());
         eventPublisher.publishEvent(appointmentEvent);
         log.info("Accepted Offer " + serviceDeliveryOfferUuid);
