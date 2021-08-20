@@ -407,22 +407,14 @@ public class ServiceTransactions {
 
         List<CustomerRequestDto> customerRequestDtos = new ArrayList<>();
         requests.forEach(request -> {
-            Calendar c = Calendar.getInstance();
-            c.setTime(request.getRequiredOn());
-            String dayOfMonth = c.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + c.get(Calendar.DAY_OF_MONTH) : "" + c.get(Calendar.DAY_OF_MONTH);
-            String month = c.get(Calendar.MONTH) < 10 ? "0" + c.get(Calendar.MONTH) : "" + c.get(Calendar.MONTH);
-
-            Calendar getTime = Calendar.getInstance();
-            getTime.setTime(request.getExpectedStartTime());
-            String hour = getTime.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + getTime.get(Calendar.HOUR_OF_DAY) : "" + getTime.get(Calendar.HOUR_OF_DAY);
-            String minutes = getTime.get(Calendar.MINUTE) < 10 ? "0" + getTime.get(Calendar.MINUTE) : "" + getTime.get(Calendar.MINUTE);
-
+          SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+          SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
             CustomerRequestDto requestDto = CustomerRequestDto.builder()
                     .uuid(request.getUuid())
                     .expectedHours(String.valueOf(request.getExpectedTentativeEffortRequiredInHours()))
-                    .expectedStartTime(hour + ":" + minutes)
+                    .expectedStartTime(timeFormat.format(request.getExpectedStartTime()))
                     .requirementDescription(request.getRequirementDescription())
-                    .requiredOn(dayOfMonth + "-" + month + "-" + c.get(Calendar.YEAR))
+                    .requiredOn(simpleDateFormat.format(request.getRequiredOn()))
                     .build();
             customerRequestDtos.add(requestDto);
         });
@@ -473,12 +465,13 @@ public class ServiceTransactions {
                     SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
                     ProviderAppointmentDto providerAppointmentDto =
                             ProviderAppointmentDto.builder()
+                            .uuid(appointment.getUuid())
                             .appointmentDate(dateFormatter.format(appointment.getServiceDeliveredOn()))
                             .appointmentDesc(appointment.getAppointmentDescription())
                             .appointmentEndTime(timeFormatter.format(appointment.getServiceEndTime()))
                             .appointmentStartTime(timeFormatter.format(appointment.getServiceStartTime()))
-                            .appointmentWith(user.getFirstName() +" " +user.getLastName())
-                            .customerEmail(user.getEmail())
+                            .appointmentWith(customer.getFirstName() +" " +customer.getLastName())
+                            .customerEmail(customer.getEmail())
                             .customerPhone(customer.getMobileNumber())
                             .build();
 
