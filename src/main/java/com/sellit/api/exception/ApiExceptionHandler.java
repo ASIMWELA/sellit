@@ -21,7 +21,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.validation.ValidationException;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
