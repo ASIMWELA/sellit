@@ -222,25 +222,15 @@ public class ServiceTransactions {
         List<ServiceRequestDto> requestDtos = new ArrayList<>();
 
         requests.getContent().forEach(request -> {
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(request.getRequiredOn());
-            String dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH) < 10 ? "0" + calendar.get(Calendar.DAY_OF_MONTH) : "" + calendar.get(Calendar.DAY_OF_MONTH);
-            String month = calendar.get(Calendar.MONTH) < 10 ? "0" + calendar.get(Calendar.MONTH) : "" + calendar.get(Calendar.MONTH);
-
-            Calendar getTime = Calendar.getInstance();
-            getTime.setTime(request.getExpectedStartTime());
-
-            String hour = getTime.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + getTime.get(Calendar.HOUR_OF_DAY) : "" + getTime.get(Calendar.HOUR_OF_DAY);
-            String minutes = getTime.get(Calendar.MINUTE) < 10 ? "0" + getTime.get(Calendar.MINUTE) : "" + getTime.get(Calendar.MINUTE);
-
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
             ServiceRequestDto requestDto =
                     ServiceRequestDto.builder()
                             .uuid(request.getUuid())
                             .requestDescription(request.getRequirementDescription())
                             .expectedHours(request.getExpectedTentativeEffortRequiredInHours())
-                            .expectedStartTime(hour + ":" + minutes)
-                            .requiredDate(dayOfMonth + "-" + month + "-" + calendar.get(Calendar.YEAR))
+                            .expectedStartTime(timeFormatter.format(request.getExpectedStartTime()))
+                            .requiredDate(dateFormatter.format(request.getRequiredOn()))
                             .requestBy(request.getUser().getFirstName() + " " + request.getUser().getLastName())
                             .country(request.getUser().getAddress().getCountry())
                             .email(request.getUser().getEmail())
@@ -313,33 +303,19 @@ public class ServiceTransactions {
                 request.getServiceDeliveryOffers().forEach(offer -> {
                     if (offer.getServiceAppointments() != null) {
                         ServiceAppointment appointment = offer.getServiceAppointments();
-                        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-                        String appointmentDate = formatter.format(offer.getOfferSubmissionDate());
                         User u = offer.getServiceProvider().getProvider().getUser();
-
-                        //get start time
-                        Calendar getStartTime = Calendar.getInstance();
-                        getStartTime.setTime(appointment.getServiceStartTime());
-                        String hour = getStartTime.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + getStartTime.get(Calendar.HOUR_OF_DAY) : "" + getStartTime.get(Calendar.HOUR_OF_DAY);
-                        String minutes = getStartTime.get(Calendar.MINUTE) < 10 ? "0" + getStartTime.get(Calendar.MINUTE) : "" + getStartTime.get(Calendar.MINUTE);
-                        String startTime = hour + ":" + minutes;
-
-                        //get end time
-                        Calendar getEndTime = Calendar.getInstance();
-                        getStartTime.setTime(appointment.getServiceEndTime());
-                        String endHour = getEndTime.get(Calendar.HOUR_OF_DAY) < 10 ? "0" + getEndTime.get(Calendar.HOUR_OF_DAY) : "" + getEndTime.get(Calendar.HOUR_OF_DAY);
-                        String endMinutes = getEndTime.get(Calendar.MINUTE) < 10 ? "0" + getEndTime.get(Calendar.MINUTE) : "" + getEndTime.get(Calendar.MINUTE);
-                        String endTime = endHour + ":" + endMinutes;
+                        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+                        SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
 
                         UserAppointmentDto appointmentDto =
                                 UserAppointmentDto.builder()
                                         .uuid(appointment.getUuid())
-                                        .appointmentDate(appointmentDate)
+                                        .appointmentDate(dateFormatter.format(appointment.getServiceDeliveredOn()))
                                         .appointmentDesc(appointment.getAppointmentDescription())
                                         .appointmentWith(u.getFirstName() + " " + u.getLastName())
-                                        .appointmentStartTime(startTime)
+                                        .appointmentStartTime(timeFormatter.format(appointment.getServiceStartTime()))
                                         .providerEmail(u.getEmail())
-                                        .appointmentEndTime(endTime)
+                                        .appointmentEndTime(timeFormatter.format(appointment.getServiceEndTime()))
                                         .providerPhone(u.getMobileNumber())
                                         .build();
                         serviceAppointments.add(appointmentDto);
