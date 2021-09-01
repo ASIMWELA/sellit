@@ -383,8 +383,8 @@ public class ServiceTransactions {
 
         List<CustomerRequestDto> customerRequestDtos = new ArrayList<>();
         requests.forEach(request -> {
-          SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-          SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
             CustomerRequestDto requestDto = CustomerRequestDto.builder()
                     .uuid(request.getUuid())
                     .expectedHours(String.valueOf(request.getExpectedTentativeEffortRequiredInHours()))
@@ -422,34 +422,34 @@ public class ServiceTransactions {
         JsonResponse jsonResponse = JsonResponse.builder().data(providerServices).build();
         return new ResponseEntity<>(jsonResponse, HttpStatus.OK);
     }
-    
-    public ResponseEntity<JsonResponse> getProviderAppointments(String providerUuid){
+
+    public ResponseEntity<JsonResponse> getProviderAppointments(String providerUuid) {
         User user = userRepository.findByUuid(providerUuid).orElseThrow(
-                ()->new EntityNotFoundException("No user with the provided identifier")
+                () -> new EntityNotFoundException("No user with the provided identifier")
         );
-        if(!user.isAProvider()){
+        if (!user.isAProvider()) {
             throw new OperationNotAllowedException("You are not a provider");
         }
         List<ProviderAppointmentDto> providerAppointments = new ArrayList<>();
         Provider providerDetails = user.getProviderDetails();
-        providerDetails.getServices().forEach(service->{
-            service.getServiceDeliveryOffers().forEach(offer->{
-                if(offer.getServiceAppointments() != null){
+        providerDetails.getServices().forEach(service -> {
+            service.getServiceDeliveryOffers().forEach(offer -> {
+                if (offer.getServiceAppointments() != null) {
                     ServiceAppointment appointment = offer.getServiceAppointments();
                     User customer = appointment.getServiceDeliveryOffer().getServiceRequest().getUser();
                     SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
                     SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
                     ProviderAppointmentDto providerAppointmentDto =
                             ProviderAppointmentDto.builder()
-                            .uuid(appointment.getUuid())
-                            .appointmentDate(dateFormatter.format(appointment.getServiceDeliveredOn()))
-                            .appointmentDesc(appointment.getAppointmentDescription())
-                            .appointmentEndTime(timeFormatter.format(appointment.getServiceEndTime()))
-                            .appointmentStartTime(timeFormatter.format(appointment.getServiceStartTime()))
-                            .appointmentWith(customer.getFirstName() +" " +customer.getLastName())
-                            .customerEmail(customer.getEmail())
-                            .customerPhone(customer.getMobileNumber())
-                            .build();
+                                    .uuid(appointment.getUuid())
+                                    .appointmentDate(dateFormatter.format(appointment.getServiceDeliveredOn()))
+                                    .appointmentDesc(appointment.getAppointmentDescription())
+                                    .appointmentEndTime(timeFormatter.format(appointment.getServiceEndTime()))
+                                    .appointmentStartTime(timeFormatter.format(appointment.getServiceStartTime()))
+                                    .appointmentWith(customer.getFirstName() + " " + customer.getLastName())
+                                    .customerEmail(customer.getEmail())
+                                    .customerPhone(customer.getMobileNumber())
+                                    .build();
 
                     providerAppointments.add(providerAppointmentDto);
                 }
@@ -457,6 +457,4 @@ public class ServiceTransactions {
         });
         return new ResponseEntity<>(JsonResponse.builder().data(providerAppointments).build(), HttpStatus.OK);
     }
-
-
 }

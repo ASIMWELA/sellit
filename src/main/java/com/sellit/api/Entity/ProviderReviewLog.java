@@ -20,23 +20,18 @@ import java.util.Date;
 public class ProviderReviewLog  extends BaseEntity {
     @Column(name = "punctuality_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5, message = "avgPunctualityRating cannot only be greater than 5")
     double avgPunctualityRating;
     @Column(name = "proficiency_rating",length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5, message = "avgProficiencyRating cannot only be greater than 5")
     double avgProficiencyRating;
     @Column(name = "professionalism_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5, message = "avgProfessionalismRating cannot only be greater than 5")
     double avgProfessionalismRating;
     @Column(name = "communication_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5, message = "avgCommunicationRating cannot only be greater than 5")
     double avgCommunicationRating;
     @Column(name = "price_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5, message = "avgPriceRating cannot only be greater than 5")
     double avgPriceRating;
     @Column(name="review", nullable = false, length = 1500)
     @NotEmpty(message = "review cannot be empty")
