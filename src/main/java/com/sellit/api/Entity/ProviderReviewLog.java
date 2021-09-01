@@ -38,7 +38,6 @@ public class ProviderReviewLog  extends BaseEntity {
     String review;
     @Column(name = "overall_rating", length = 10, nullable = false)
     @PositiveOrZero
-    @Size(max = 5, message = "overallRating cannot only be greater than 5")
     double overallRating;
     @Column(name="review_date", nullable = false)
     Date reviewDate;
