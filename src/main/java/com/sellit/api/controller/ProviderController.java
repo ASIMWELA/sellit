@@ -49,10 +49,6 @@ public class ProviderController {
         return providerService.submitProviderReview(serviceAppointmentUuid,principal, providerReviewLog);
     }
 
-    @GetMapping
-    public ResponseEntity<PagedResponse> getServiceProviders(@PositiveOrZero(message = "page number cannot be negative") @RequestParam(defaultValue = "0") Integer pageNo, @Positive @RequestParam(defaultValue = "10") Integer pageSize){
-        return providerService.getServiceProviders(pageNo, pageSize);
-    }
     @Secured("ROLE_PROVIDER")
     @PutMapping("/providerUuid/update")
     public ResponseEntity<ApiResponse> updateProviderDetails(@PathVariable String providerUuid, @RequestBody @Valid UpdateProviderDetailsRequest updateProviderDetailsRequest){

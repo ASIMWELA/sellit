@@ -1,20 +1,22 @@
 package com.sellit.api.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Data
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ServiceProviderDto {
- String uuid, serviceOfferingDescription;
- int experienceInMonths;
- double  billingRatePerHour;
- @JsonInclude(JsonInclude.Include.NON_NULL)
- ProviderRatingDto providerRating;
- UserDetailsDto userDetails;
+    String uuid,
+            avgPunctualityRating,
+            avgCommunicationRating,
+            avgPriceRating,
+            overallRating,
+            billingRatePerHour,
+            experienceInMonths,
+            providerName,
+            providerEmail;
 }

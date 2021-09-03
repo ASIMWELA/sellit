@@ -189,9 +189,24 @@ public class ServiceTransactions {
 
     public ResponseEntity<JsonResponse> getServiceProviders(String serviceUuid) {
         log.info("Get providers for Service : {}", serviceUuid);
+        List<ServiceProviderDto> serviceProviderDtos = new ArrayList<>();
         com.sellit.api.Entity.Service service = serviceRepository.findByUuid(serviceUuid).orElseThrow(() -> new EntityNotFoundException("No service with the given identifier"));
-        List<ServiceProvider> sp = service.getServiceProviders();
-        JsonResponse res = JsonResponse.builder().data(sp).build();
+        service.getServiceProviders().forEach(provider->{
+            User user = provider.getProvider().getUser();
+            ProviderRating providerRating =  provider.getProvider().getProviderRating();
+            ServiceProviderDto dto = ServiceProviderDto.builder()
+                    .avgCommunicationRating(providerRating != null?String.valueOf(providerRating.getAvgCommunicationRating()):"0.0")
+                    .avgPriceRating(providerRating != null?String.valueOf(providerRating.getAvgPriceRating()):"0.0")
+                    .avgPunctualityRating(providerRating != null?String.valueOf(providerRating.getAvgPunctualityRating()):"0.0")
+                    .overallRating(providerRating != null?String.valueOf(providerRating.getOverallRating()):"0.0")
+                    .billingRatePerHour(String.valueOf(provider.getBillingRatePerHour()))
+                    .experienceInMonths(String.valueOf(provider.getExperienceInMonths()))
+                    .providerEmail(user.getEmail())
+                    .providerName(user.getFirstName()+" "+user.getLastName())
+                    .build();
+            serviceProviderDtos.add(dto);
+        });
+        JsonResponse res = JsonResponse.builder().data(serviceProviderDtos).build();
         log.info("Returned Providers for service : {}", serviceUuid);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
