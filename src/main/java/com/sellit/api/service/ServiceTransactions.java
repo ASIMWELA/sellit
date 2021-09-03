@@ -195,6 +195,7 @@ public class ServiceTransactions {
             User user = provider.getProvider().getUser();
             ProviderRating providerRating =  provider.getProvider().getProviderRating();
             ServiceProviderDto dto = ServiceProviderDto.builder()
+                    .uuid(provider.getUuid())
                     .avgCommunicationRating(providerRating != null?String.valueOf(providerRating.getAvgCommunicationRating()):"0.0")
                     .avgPriceRating(providerRating != null?String.valueOf(providerRating.getAvgPriceRating()):"0.0")
                     .avgPunctualityRating(providerRating != null?String.valueOf(providerRating.getAvgPunctualityRating()):"0.0")
